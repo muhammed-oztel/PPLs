@@ -1,0 +1,5 @@
+
+
+class FamilyMember(object):
+
+    pass
