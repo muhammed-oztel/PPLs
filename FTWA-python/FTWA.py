@@ -35,7 +35,7 @@ class FamilyTreeWarehouseApplication(object):
                         else:
                             self.tree.add_member(FamilyMember(
                                 name=name, surname=surname))
-                    elif choice2 == "2":
+                    elif choice2 == "2":  # TODO: implemantation needed, ask for add spouse option as well
                         pass
                     elif choice2 == "3":
                         status = self.search_person().is_alive()
