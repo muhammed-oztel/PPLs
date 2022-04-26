@@ -21,39 +21,39 @@ class FamilyTreeWarehouseApplication(object):
                 self.create_tree(name)
                 while True:
                     self.print_tree_menu()
-                    choice = input("\nEnter your choice: \n")
-                    if choice == "1":
-                        self.print_tree()
-                    elif choice == "2":
+                    choice2 = input("\nEnter your choice: \n")
+                    if choice2 == "1":
                         name, surname = input(
                             "Enter the name & surname of the person: ").split(" ")
                         options = input(
                             "Enter the options (gender, bday, dday, father, mother) (N to skip): \n")
-                        if options != "N":
+                        if options.lower() != "n":
                             options = options.split(" ")
                             fm = FamilyMember(
-                                name=name, surname=surname, gender=options[1], birth_date=options[2], death_date=options[3], father=options[4], mother=options[5])
+                                name=name, surname=surname, gender=options[0], birth_date=options[1], death_date=options[2], father=options[3], mother=options[4])
                             self.tree.add_member(fm)
                         else:
                             self.tree.add_member(FamilyMember(
                                 name=name, surname=surname))
-                    elif choice == "3":
+                    elif choice2 == "2":
+                        pass
+                    elif choice2 == "3":
                         status = self.search_person().is_alive()
                         if status:
                             print("The person is alive!")
                         else:
                             print("The person is dead!")
-                    elif choice == "4":
+                    elif choice2 == "4":
                         print(self.search_person().get_age())
-                    elif choice == "5":
+                    elif choice2 == "5":
                         print(self.search_person().get_level())
-                    elif choice == "6":
+                    elif choice2 == "6":
                         person1 = self.search_person()
                         person2 = self.search_person()
                         print(person1.get_relationship(person2)[0])
-                    elif choice == "7":
+                    elif choice2 == "7":
                         self.print_tree()
-                    elif choice == "8":
+                    elif choice2 == "8":
                         break
 
             elif choice == "2":

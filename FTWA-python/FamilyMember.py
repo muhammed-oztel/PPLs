@@ -7,11 +7,15 @@ class FamilyMember(object):
         self.name = name
         self.surname = surname
         self.gender = gender
-        if date.today() >= birth_date:
+        if birth_date == None:
+            pass
+        elif date.today() >= birth_date:
             self.birth_date = birth_date
         else:
             print("Cannot add birth date in the future!")
-        if date.today() >= death_date:
+        if death_date == None:
+            pass
+        elif date.today() >= death_date:
             self.death_date = death_date
         else:
             print("Cannot add death date in the future!")
