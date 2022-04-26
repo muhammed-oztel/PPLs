@@ -19,3 +19,9 @@ class FamilyTree(object):
                 self.members[i] = member
                 return
         self.members.append(member)
+
+    def search_member(self, name, surname):
+        for i in range(len(self.members)):
+            if self.members[i].name == name and self.members[i].surname == surname:
+                return self.members[i]
+        return None
