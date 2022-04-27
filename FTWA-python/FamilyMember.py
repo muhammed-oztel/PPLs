@@ -7,18 +7,8 @@ class FamilyMember(object):
         self.name = name
         self.surname = surname
         self.gender = gender
-        if birth_date == None:
-            pass
-        elif date.today() >= birth_date:
-            self.birth_date = birth_date
-        else:
-            print("Cannot add birth date in the future!")
-        if death_date == None:
-            pass
-        elif date.today() >= death_date:
-            self.death_date = death_date
-        else:
-            print("Cannot add death date in the future!")
+        self.birth_date = birth_date
+        self.death_date = death_date
         self.father = father
         self.mother = mother
         self.children = []
@@ -32,7 +22,7 @@ class FamilyMember(object):
 
     def add_spouse(self, spouse):
         self.spouse = spouse
-        if spouse.get_age() < 18:
+        if spouse.get_age() < 18 and spouse.get_age() != None:
             print("The spouse is under 18 years old!")
 
     def is_alive(self):
