@@ -141,7 +141,7 @@ class FamilyTreeWarehouseApplication(object):
         while True:
             try:
                 name, surname = input(
-                    "Enter the name & surname of the person: ").split(" ")
+                    "Enter the name & surname of the person you want to search / modify: ").split(" ")
                 break
             except:
                 print("Invalid name!")
@@ -152,7 +152,7 @@ class FamilyTreeWarehouseApplication(object):
         while True:
             try:
                 name, surname = input(
-                    "Enter the name & surname of the person: ").split(" ")
+                    "Enter the name & surname of the person you want to add: ").split(" ")
                 break
             except:
                 print("Invalid name!")

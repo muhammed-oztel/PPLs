@@ -13,10 +13,19 @@ class FamilyMember(object):
         self.mother = mother
         self.children = []
         self.tree = None
+        self.spouse = None
 
     def add_child(self, child):
-        if not self.death_date:
+        if self.death_date is None or ((date.today() - self.death_date).days > 0):
             self.children.append(child)
+            if self.gender == "male":
+                child.father = self
+                if self.spouse != None:
+                    child.mother = self.spouse
+            elif self.gender == "female":
+                child.mother = self
+                if self.spouse != None:
+                    child.father = self.spouse
         else:
             print("Cannot add child to dead member!")
 

@@ -9,9 +9,9 @@ class FamilyTree(object):
         self.root = None
 
     def add_member(self, member: FamilyMember):
-        self.members.append(member)
         if len(self.members) == 0:
             self.root = member
+        self.members.append(member)
 
     def update_member(self, member: FamilyMember):
         for i in range(len(self.members)):

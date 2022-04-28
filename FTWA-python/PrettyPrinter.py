@@ -35,15 +35,25 @@ class PrettyPrinter(object):
         # the last node of
         # the exploring depth
         elif isLast:
-            print("+---", x.n)
+            if x.spouse is not None:
+                print("+---", x.name + " " + x.surname + " & " +
+                      x.spouse.name + " " + x.spouse.surname)
+            else:
+                print("+---", x.name + " " + x.surname)
+            # print("+---", x.name + " " + x.surname)
             # No more childrens turn it
             # to the non-exploring depth
             flag[depth] = False
         else:
-            print("+---", x.n)
+            if x.spouse is not None:
+                print("+---", x.name + " " + x.surname + " & " +
+                      x.spouse.name + " " + x.spouse.surname)
+            else:
+                print("+---", x.name + " " + x.surname)
+            # print("+---", x.name + " " + x.surname)
 
         it = 0
-        for i in x.root:
+        for i in x.children:
             it += 1
 
             # Recursive call for the
