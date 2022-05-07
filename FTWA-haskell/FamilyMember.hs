@@ -14,7 +14,7 @@ data FamilyMember = FamilyMember {
         mother :: String, 
         children :: [FamilyMember], 
         tree :: String, 
-        spouse :: String, 
+        spouse :: String
         } deriving (Show)
 
 defaultFM :: FamilyMember
@@ -28,7 +28,7 @@ defaultFM = FamilyMember {
         mother = "",
         children = [],
         tree = "",
-        spouse = "",
+        spouse = ""
 }
 
 -- example FM 
