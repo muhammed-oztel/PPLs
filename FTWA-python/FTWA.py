@@ -151,21 +151,20 @@ class FamilyTreeWarehouseApplication(object):
     def add_person_menu(self) -> FamilyMember:
         while True:
             try:
-                name, surname = input(
+                name, surname, gender = input(
                     "Enter the name & surname of the person you want to add: ").split(" ")
                 break
             except:
                 print("Invalid name!")
         options = input(
-            "Enter the options (gender, bday, dday, father, mother) (N to skip): \n")
+            "Enter the options (bday, dday, father, mother) (N to skip): \n")
         if options.lower() != "n":
             options = options.split(" ")
-            fm = FamilyMember(
-                name=name, surname=surname, gender=options[0], birth_date=options[1], death_date=options[2], father=options[3], mother=options[4])
+            fm = FamilyMember(name=name, surname=surname,
+                              birth_date=options[0], death_date=options[1], father=options[2], mother=options[3])
             self.tree.add_member(fm)
         else:
-            fm = FamilyMember(
-                name=name, surname=surname)
+            fm = FamilyMember(name=name, surname=surname, gender=gender)
             self.tree.add_member(fm)
         return fm
 
