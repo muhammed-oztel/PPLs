@@ -147,7 +147,7 @@ class FamilyMember(object):
                 relationships.append('kiz')
 
         # check if the other member is brother/sister
-        if other_member in self.father.children:
+        if self.father is not None and other_member in self.father.children:
             # big brother
             if self.get_age() < other_member.get_age() and other_member.gender == 'male':
                 relationships.append('abi')
@@ -161,7 +161,7 @@ class FamilyMember(object):
             elif self.get_age() > other_member.get_age() and other_member.gender == 'female':
                 relationships.append('kiz kardes')
 
-        if other_member.father == self.father.father:
+        if self.father is not None and self.father.father is not None and other_member.father == self.father.father:
             # check for uncle (brother of father)
             if other_member.gender == 'male':
                 relationships.append('amca')
@@ -169,7 +169,7 @@ class FamilyMember(object):
             elif other_member.gender == 'female':
                 relationships.append('teyze')
 
-        if other_member.father == self.mother.father:
+        if self.mother is not None and self.mother.father is not None and other_member.father == self.mother.father:
             # check for uncle (brother of mother)
             if other_member.gender == 'male':
                 relationships.append('dayi')
@@ -178,16 +178,21 @@ class FamilyMember(object):
                 relationships.append('hala')
 
         # yegen
-        for sibling in self.father.children:
-            if other_member in sibling.children:
-                relationships.append('yegen')
+        if self.father is not None:
+            for sibling in self.father.children:
+                if other_member in sibling.children:
+                    relationships.append('yegen')
 
         # cousin
-        if other_member.father.father == self.father.father or other_member.mother.father == self.mother.father:
-            relationships.append('kuzen')
+        if other_member.father is not None and other_member.father.father is not None and self.father is not None \
+           and self.father.father is not None and other_member.mother is not None and other_member.mother.father \
+           is not None and self.mother is not None and self.mother.father is not None:
+            
+            if other_member.father.father == self.father.father or other_member.mother.father == self.mother.father:
+                relationships.append('kuzen')
 
         # sibling-in-law (eniste/yenge)
-        if other_member.spouse in self.father.children:
+        if self.father is not None and other_member.spouse in self.father.children:
             # eniste
             if other_member.gender == 'male':
                 relationships.append('eniste')
@@ -196,11 +201,11 @@ class FamilyMember(object):
                 relationships.append('yenge')
 
         # mother-in-law
-        if self.spouse.mother == other_member:
+        if self.spouse is not None and self.spouse.mother == other_member:
             relationships.append('kayinvalide')
 
         # father-in-law
-        if self.spouse.father == other_member:
+        if self.spouse is not None and self.spouse.father == other_member:
             relationships.append('kayinpeder')
 
         # son-in-law/daughter-in-law
@@ -210,7 +215,8 @@ class FamilyMember(object):
             elif other_member.gender == 'female':
                 relationships.append('gelin')
 
-        if other_member.spouse in self.spouse.father.children:
+        if self.spouse is not None and self.spouse.father is not None and other_member.spouse is not None and \
+           other_member.spouse in self.spouse.father.children:
             # bacanak
             if self.gender == 'male' and other_member.gender == 'male':
                 relationships.append('bacanak')
@@ -219,11 +225,11 @@ class FamilyMember(object):
                 relationships.append('elti')
 
         # baldiz is the other member who is the sister of sombody's wife
-        if self.gender == 'male' and other_member in self.spouse.father.children and other_member.gender == 'female':
+        if self.spouse is not None and self.spouse.father is not None and self.gender == 'male' and other_member in self.spouse.father.children and other_member.gender == 'female':
             relationships.append('baldiz')
 
         # kayinbirader is the other member who is the brother of somebody's wife
-        if other_member.gender == 'male' and other_member in self.spouse.father.children:
+        if self.spouse is not None and self.spouse.father is not None and other_member.gender == 'male' and other_member in self.spouse.father.children:
             relationships.append('kayinbirader')
 
         return relationships

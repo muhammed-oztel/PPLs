@@ -60,7 +60,7 @@ class PlayGround(object):
         mehmet.add_child(zeynep)
 
         # create children for ali and ayse couple
-        bilal = FamilyMember("Bilal", "Ozgur", "male", date(1999, 8, 20))
+        bilal = FamilyMember("Bilal", "Ozgur", "male", date(1998, 8, 10))
         suleiman = FamilyMember("Suleiman", "Ozgur", "male", date(1999, 8, 20))
         burcu = FamilyMember("Burcu", "Ozgur", "female", date(2001, 7, 9))
 
@@ -99,10 +99,30 @@ class PlayGround(object):
         print()
 
         # print relationships
-        query_member = ahmet
-        print(f"relationship of {query_member.name} with {selin.name}:")
-        for relations in suleiman.get_relationship(selin):
-            print(relations)
+        self.get_relationship(ali, hilal_updated)   # anne
+        self.get_relationship(ali, ahmet)           # baba
+        self.get_relationship(ahmet, ali)           # ogul
+        self.get_relationship(hilal_updated, selin) # kiz
+        self.get_relationship(ali, omer)            # erkek kardes
+        self.get_relationship(ali, selin)           # kiz kardes
+        self.get_relationship(omer, selin)          # abla
+        self.get_relationship(omer, ali)            # abi
+        self.get_relationship(suleiman, omer)       # amca
+        self.get_relationship(arif, leyla)          # hala
+        self.get_relationship(arif, yunus)          # dayi
+        self.get_relationship(arif, burcu)          # teyze
+        self.get_relationship(burcu, batuhan)       # yegen
+        self.get_relationship(batuhan, arif)        # kuzen
+        self.get_relationship(omer, mehmet)         # eniste
+        self.get_relationship(omer, ayse)           # yenge
+        self.get_relationship(ayse, hilal_updated)  # kayinvalide
+        self.get_relationship(zeynep, ali)          # eniste
+        self.get_relationship(selin, suleiman)      # damat
+        self.get_relationship(ayse, leyla)          # gelin
+        self.get_relationship(suleiman, bilal)      # bacanak
+        self.get_relationship(leyla, zeynep)        # elti
+        self.get_relationship(bilal, leyla)         # baldiz
+        self.get_relationship(suleiman, yunus)      # kayinbirader
 
         # pretty print the tree
         print('\nHierarchy of the tree:\n')
@@ -112,6 +132,12 @@ class PlayGround(object):
         node_count = len(self.family_tree.members)
         flag = [True] * node_count
         self.pretty_printer.printNTree(self.family_tree.root, flag, 0, True)
+
+    def get_relationship(self, self_member, query_member):
+        print(f"relationship of {query_member.name} to {self_member.name}:")
+        for relations in self_member.get_relationship(query_member):
+            print(relations)
+        print()
 
 
 if __name__ == "__main__":
