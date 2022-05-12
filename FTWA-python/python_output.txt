@@ -1,0 +1,105 @@
+WARNING!!! The member (Leyla) who is marrying Suleiman is under 18 years old!
+ERROR!!! Cannot add child (Elraen) to a widow (Mehmet/Selin)!
+ERROR!!! birth / death date (2024-04-09) of member (Jahrein) is in the future!
+ERROR!!! birth / death date (2026-11-12) of member (Suleiman) is in the future!
+
+details of Batuhan:
+age:  1
+is alive:  True
+level in family tree:  4
+
+relationship of Hilal to Ali:
+anne
+
+relationship of Ahmet to Ali:
+baba
+
+relationship of Ali to Ahmet:
+ogul
+
+relationship of Selin to Hilal:
+kiz
+
+relationship of Omer to Ali:
+erkek kardes
+
+relationship of Selin to Ali:
+kiz kardes
+
+relationship of Selin to Omer:
+abla
+
+relationship of Ali to Omer:
+abi
+
+relationship of Omer to Suleiman:
+amca
+
+relationship of Leyla to Arif:
+hala
+
+relationship of Yunus to Arif:
+dayi
+
+relationship of Burcu to Arif:
+teyze
+
+relationship of Batuhan to Burcu:
+yegen
+
+relationship of Arif to Batuhan:
+kuzen
+
+relationship of Mehmet to Omer:
+eniste
+
+relationship of Ayse to Omer:
+yenge
+
+relationship of Hilal to Ayse:
+kayinvalide
+
+relationship of Ali to Zeynep:
+dayi
+kayinpeder
+
+relationship of Suleiman to Selin:
+yegen
+damat
+
+relationship of Leyla to Ayse:
+gelin
+
+relationship of Bilal to Suleiman:
+abi
+bacanak
+
+relationship of Zeynep to Leyla:
+abla
+elti
+
+relationship of Leyla to Bilal:
+yenge
+baldiz
+
+relationship of Yunus to Suleiman:
+kayinbirader
+
+
+Hierarchy of the tree:
+
+Ahmet Ozgur & Hilal Demirtas Ozgur
++--- Selin Ozgur & Mehmet Isci
+|    +--- Yunus Isci
+|    +--- Leyla Isci & Suleiman Ozgur
+|        +--- Batuhan Ozgur
+|    +--- Zeynep Isci & Bilal Ozgur
+|    |    +--- Arif Ozgur
++--- Ali Ozgur & Ayse Yalcintas Ozgur
+|    +--- Bilal Ozgur & Zeynep Isci
+|    |    +--- Arif Ozgur
+|    +--- Suleiman Ozgur & Leyla Isci
+|        +--- Batuhan Ozgur
+|    +--- Burcu Ozgur
++--- Omer Ozgur
++--- placeholder placeholder
