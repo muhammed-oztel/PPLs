@@ -7,183 +7,126 @@ import datetime
 class FamilyTreeWarehouseApplication(object):
 
     def __init__(self):
-        self.tree = None
+        self.tree = FamilyTree('tree0')
         self.pretty_printer = PrettyPrinter()
-
         self.init_app()
 
     def init_app(self):
-        print("Welcome to the Family Tree Warehouse!\n")
+        print("Welcome to the Family Tree Warehouse!")
+
         while True:
-            self.print_main_menu()
+            self.print_tree_menu()
             choice = input("\nEnter your choice: \n")
-            if choice == "1":
-                name = input("Enter the name of the tree: ")
-                self.create_tree(name)
-                while True:
-                    self.print_tree_menu()
-                    choice2 = input("\nEnter your choice: \n")
-                    if choice2 == "1":  # Add a person
-                        self.add_person_menu()
-                    elif choice2 == "2":  # Update a person
-                        # TODO: implemantation needed, ask for add spouse option as well
-                        while True:
-                            self.print_update_person_menu()
-                            choice3 = input("\nEnter your choice: \n")
-                            if choice3 != "8":
-                                person = self.search_person()
-                                if person is not None:
-                                    if choice3 == "1":  # Add a spouse
-                                        spouse = self.add_person_menu()
-                                        flag = False
-                                        while not flag:
-                                            date = self.get_date()
-                                            flag = self.check_date(date)
-                                        spouse.birth_date = date
-                                        person.add_spouse(spouse)
-                                    elif choice3 == "2":  # Add child
-                                        child = self.add_person_menu()
-                                        person.add_child(child)
-                                    elif choice3 == "3":  # Add gender
-                                        person.gender = input(
-                                            "Enter a gender: ")
-                                    elif choice3 == "4":  # Add birth date
-                                        flag = False
-                                        while not flag:
-                                            date = self.get_date()
-                                            flag = self.check_date(date)
-                                        person.birth_date = date
-                                    elif choice3 == "5":  # Add death date
-                                        flag = False
-                                        while not flag:
-                                            date = self.get_date()
-                                            flag = self.check_date(date)
-                                        person.death_date = date
-                                    elif choice3 == "6":  # Add father
-                                        father = self.add_person_menu()
-                                        person.father = father
-                                    elif choice3 == "7":  # Add mother
-                                        mother = self.add_person_menu()
-                                        person.mother = mother
-                            elif choice3 == "8":
-                                break
-                            else:
-                                print("Invalid choice!")
 
-                    # Get a person's status (dead or alive)
-                    elif choice2 == "3":
-                        status = self.search_person().is_alive()
-                        if status:
-                            print("The person is alive!")
-                        else:
-                            print("The person is dead!")
-                    elif choice2 == "4":  # Get a person's age
-                        print(self.search_person().get_age())
-                    elif choice2 == "5":  # Get a person's level
-                        print(self.search_person().get_level())
-                    elif choice2 == "6":  # Get a person's relationship with another person
-                        person1 = self.search_person()
-                        person2 = self.search_person()
-                        print(person1.get_relationship(person2))
-                    elif choice2 == "7":  # Print the tree
-                        self.print_tree()
-                    elif choice2 == "8":  # Return to main menu
-                        break
-                    else:
-                        print("Invalid choice!")
+            if choice == '1': # Add a person
+                self.add_person_prompt()
 
-            elif choice == "2":
-                print("Goodbye!")
+            elif choice == '2': # Add a spouse
+                member_0_fullname = input('Enter the name & surname of the person you want to add a spouse to: ')
+                member_1_fullname = input('Enter the name & surname of the person you want to add as a spouse: ')
+                member_0 = self.tree.search_member(member_0_fullname)
+                member_1 = self.tree.search_member(member_1_fullname)
+                if member_0 is not None and member_1 is not None:
+                    member_0.add_spouse(member_1)
+
+            elif choice == '3': # Add a child
+                member_0_fullname = input('Enter the name & surname of the person you want to add a child to: ')
+                member_1_fullname = input('Enter the name & surname of the person you want to add as a child: ')
+                member_0 = self.tree.search_member(member_0_fullname)
+                member_1 = self.tree.search_member(member_1_fullname)
+                if member_0 is not None and member_1 is not None:
+                    member_0.add_child(member_1)
+
+            elif choice == '4': # Print a person's details
+                member_fullname = input('Enter the name & surname of the person you want to print: ')
+                member = self.tree.search_member(member_fullname)
+                if member is not None:
+                    print(f"\ndetails of {member.name}:")
+                    print("age: ", member.get_age())
+                    print("is alive: ", member.is_alive())
+                    print("level in family tree: ", member.get_level())
+
+            elif choice == '5': # Set a person's death date
+                member_fullname = input('Enter the name & surname of the person you want to set a death date for: ')
+                ddeath = input('Enter the death date (YYYY/MM/DD): ')
+                member = self.tree.search_member(member_fullname)
+                if member is not None:
+                    date = ddeath.split("/")
+                    death_date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+                    member.set_death_date(death_date)
+
+            elif choice == '6': # Get a person's relationship with another person
+                member_0_fullname = input('Enter the name & surname of the person you want to get the relationship of: ')
+                member_1_fullname = input('Enter the name & surname of the person you want to get the relationship with: ')
+                member_0 = self.tree.search_member(member_0_fullname)
+                member_1 = self.tree.search_member(member_1_fullname)
+                if member_0 is not None and member_1 is not None:
+                    self.get_relationship(member_1, member_0)
+
+            elif choice == '7': # Update a person's details
+                member_fullname = input('Enter the name & surname of the person you want to update: ')
+                attribute = input('Enter the attribute you want to update: ')
+                member = self.tree.search_member(member_fullname)
+
+                if attribute == 'name':
+                    new_name = input('Enter the new name: ')
+                    member.name = new_name
+                
+                elif attribute == 'surname':
+                    new_surname = input('Enter the new surname: ')
+                    member.surname = new_surname
+                
+                elif attribute == 'dob':
+                    new_dob = input('Enter the new date of birth (YYYY/MM/DD): ')
+                    date = new_dob.split("/")
+                    new_birth_date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+                    member.birth_date = new_birth_date
+                
+                elif attribute == 'gender':
+                    new_gender = input('Enter the new gender: ')
+                    member.gender = new_gender
+
+            elif choice == '8':
+                self.print_tree()
+
+            elif choice == '9':
+                print("\nGoodbye!")
                 break
-            else:
-                print("Invalid choice!")
-
-    def print_main_menu(self):
-        print("""
-        1. Create a new family tree
-        2. Quit
-        """)
 
     def print_tree_menu(self):
-        print("""
+        print(""" 
+        ------------------- Tree Menu -------------------
         1. Add a person
-        2. Update a person
-        3. Get a person's status (dead or alive)
-        4. Get a person's age
-        5. Get a person's level
+        2. Add a spouse
+        3. Add a child
+        4. Print a person's details
+        5. Set a person's death date
         6. Get a person's relationship with another person
-        7. Print the tree
-        8. Return to main menu
+        7. Update a person's details
+        8. Print the tree
+        9. Exit
         """)
-
-    def print_update_person_menu(self):
-        # spouse, child, gender, bday, dday, father, mother
-        print("""
-        1. Add a spouse
-        2. Add a child
-        3. Add gender
-        4. Add birth date
-        5. Add death date
-        6. Add father
-        7. Add mother
-        8. Return to  tree menu
-        """)
-
-    def create_tree(self, name):
-        self.tree = FamilyTree(name)
 
     def print_tree(self):
         node_count = len(self.tree.members)
         flag = [True] * node_count
         self.pretty_printer.printNTree(self.tree.root, flag, 0, True)
 
-    def search_person(self):
-        while True:
-            try:
-                name, surname = input(
-                    "Enter the name & surname of the person you want to search / modify: ").split(" ")
-                break
-            except:
-                print("Invalid name!")
-        person = self.tree.search_member(name, surname)
-        return person
-
-    def add_person_menu(self) -> FamilyMember:
-        while True:
-            try:
-                name, surname, gender = input(
-                    "Enter the name & surname of the person you want to add: ").split(" ")
-                break
-            except:
-                print("Invalid name!")
-        options = input(
-            "Enter the options (bday, dday, father, mother) (N to skip): \n")
-        if options.lower() != "n":
-            options = options.split(" ")
-            fm = FamilyMember(name=name, surname=surname,
-                              birth_date=options[0], death_date=options[1], father=options[2], mother=options[3])
-            self.tree.add_member(fm)
+    def add_person_prompt(self):
+        is_placeholder = input("Is this a placeholder? (y/n): ")
+        if is_placeholder == "y":
+            member = FamilyMember('placeholder', 'placeholder')
         else:
-            fm = FamilyMember(name=name, surname=surname, gender=gender)
-            self.tree.add_member(fm)
-        return fm
+            member_info = input("Enter the name,surname,gender,dob (YYYY/MM/DD) of the person you want to add: ")
+            name, surname, gender, dob = member_info.split(',')
+            date = dob.split("/")
+            birth_date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+            member = FamilyMember(name=name, surname=surname, gender=gender, birth_date=birth_date)
+        self.tree.add_member(member)
+        return member
 
-    def get_date(self):
-        date = input("Enter a date (DD/MM/YYYY):").split("/")
-        try:
-            date_object = datetime.date(
-                int(date[2]), int(date[1]), int(date[1]))
-            return date_object
-        except:
-            print("Invalid date!")
-            return False
-
-    def check_date(self, date):
-        try:
-            if (datetime.date.today() - date).days < 0:
-                print("Cannot add birth / death date in the future!")
-                return False
-            else:
-                return True
-        except:
-            return False
+    def get_relationship(self, self_member, query_member):
+        print(f"relationship of {query_member.name} to {self_member.name}:")
+        for relations in self_member.get_relationship(query_member):
+            print(relations)
+        print()
