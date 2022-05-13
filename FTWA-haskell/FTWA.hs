@@ -34,6 +34,7 @@ printTreeMenu tree = do
     choice <- getLine
     case choice of
         "1" -> do
+            
             tree' <- addPerson tree 
             print $ tree'
             printTreeMenu tree'

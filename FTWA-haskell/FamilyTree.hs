@@ -6,24 +6,42 @@ import FamilyMember
 
 data FamilyTree = FamilyTree {
     treeName :: String,
-    treeMembers :: [FamilyMember]
+    treeMembers :: [FamilyMember],
     treeRoot :: Maybe FamilyMember
-} derivng (Show)
+} deriving (Show)
 
 
 
-addMember :: FamilyMember -> FamilyTree -> FamilyTree
-addMember fm (FamilyTree tn tmembers tr) = set element (elemIndex fm) 
+remove element list = filter (\e -> e/=element) list
+
+-- addPerson :: FamilyTree -> IO FamilyTree
+-- addPerson tree = do
+--     putStrLn "Enter the name of the person:"
+--     givenName <- getLine
+--     putStrLn "Enter the surname of the person:"
+--     givenSurname <- getLine
+--     putStrLn "Enter the gender of the person(M/F):"
+--     givenGender <- getLine
+
+addChild :: FamilyMember -> FamilyMember -> FamilyMember -> FamilyTree -> FamilyTree
+addChild child mother father ft = do
+    let newChild = child{mother=mother, father=father}
+    let newMother = mother{children=newChild:children mother}
+    let newFather = father{children=newChild:children father}
+    return ft{treeMembers=newChild:newMother:newFather: remove newChild (treeMembers ft)}
+
+addMember :: FamilyTree -> FamilyMember -> FamilyTree
+addMember ft fm = ft { treeMembers = fm : treeMembers ft }
 
 -- function that replace the given member from the list of members
-updateMember :: FamilyMember -> FamilyTree -> FamilyTree
-updateMember fm ft = ft { treeMembers = replace (treeMembers ft) fm }
+updateMemberList :: FamilyMember -> FamilyTree -> FamilyTree
+updateMemberList fm ft = ft { treeMembers = fm : remove fm (treeMembers ft) }
 
 updatePerson :: FamilyTree -> IO FamilyTree -- ask for which user to update and update their info
 updatePerson (FamilyTree name members root) = do
     putStrLn "Enter name of person to update:"
     updateName <- getLine
-    let updatePerson = find (\x -> memName x == updateName) members
+    let updatePerson = find (\x -> firstName x ++ " " ++ lastName x == updateName) members
     if updatePerson == Nothing 
         then do
             putStrLn "Person not found"
