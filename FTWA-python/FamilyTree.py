@@ -41,16 +41,16 @@ class FamilyTree(object):
         member.set_tree(self)
         self.members.append(member)
 
-    def search_member(self, name, surname):
+    def search_member(self, fullname):
         """
         Search a member in the tree.
 
-            param: name: string
-            param: surname: string
+            param: fullname: string
             return: FamilyMember
         """
-        for i in range(len(self.members)):
-            if self.members[i].name == name and self.members[i].surname == surname:
-                return self.members[i]
-        
+        splitted= fullname.split(' ')
+        first_name, last_name = splitted[0], ' '.join(splitted[1:])
+        for member in self.members:
+            if member.name == first_name and member.surname == last_name:
+                return member 
         return None
