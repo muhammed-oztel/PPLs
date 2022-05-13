@@ -1,6 +1,7 @@
 
 module FamilyMember where
 import Data.Time.Calendar
+import Data.Time.Clock
 import Data.Maybe
 
 data FamilyMember = FamilyMember {
@@ -34,19 +35,20 @@ isAlive fm = isNothing $ deathDate fm
 
  
 
-getAge :: FamilyMember -> Int
-getAge fm = fromIntegral $ diffDays (fromJust $ birthDate fm) (fromJust $ deathDate fm)
+getAge :: FamilyMember -> Integer -- get the difference between the birth date and the current date in years
+getAge fm = (diffDays (fromGregorian 2022 05 13) (fromJust $ birthDate fm)) `div` 365
 
 
---function that number of ancestors by checking father
-getLevel :: FamilyMember -> Int
-getLevel FamilyMember{father=Nothing} = 1
-getLevel fm = 1 + getLevel (fromJust $ father fm)
-
-
+--function that get the level of member in family member tree
+-- getLevel :: FamilyMember -> [FamilyMember] -> Int -> Int
+-- getLevel fm [] level = level 
+-- getLevel Nothing _ _ = 0
+-- getLevel fm fmList = map (\x -> if x == father fm then getLevel x fmList (level + 1) )
 
 -- TODO: add relationships
 -- getRelationship :: FamilyMember -> String
 setTree :: FamilyMember -> String -> FamilyMember
 setTree fm tree = fm{tree = Just tree}
 
+fullName :: FamilyMember -> String
+fullName fm = firstName fm ++ " " ++ lastName fm
