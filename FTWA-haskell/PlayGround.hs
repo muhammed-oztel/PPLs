@@ -264,10 +264,10 @@ main = do
     putStrLn $ "Details of " ++ firstName batuhan ++ " " ++ lastName batuhan
     -- print $ (diffDays  (fromGregorian 2001 1 1) (fromGregorian 2000 1 1)) `div` 365
     putStrLn $ "age: " ++ show (getAge batuhan)
-    -- putStrLn "is alive: " 
-    -- if isAlive batuhan
-    --     then putStrLn "Yes"
-    --     else putStrLn "No"
+    putStrLn "is alive: " 
+    if isAlive batuhan
+        then putStrLn "Yes"
+        else putStrLn "No"
     -- putStrLn "level in Family tree: " ++ show (getLevel batuhan)
 
 
