@@ -105,7 +105,7 @@ class FamilyMember(object):
         else:
             return (self.death_date - self.birth_date).days // 365
 
-    def get_level(self):    # TODO: ask prof is this should be longest path
+    def get_level(self):
         """
         Get the level of the member.
 
@@ -114,13 +114,19 @@ class FamilyMember(object):
         if self.tree is None:
             return -1
 
-        level = 1
+        father_level = 1
         father = self.father
         while father is not None:
-            level += 1
+            father_level += 1
             father = father.father
+        
+        mother_level = 1
+        mother = self.mother
+        while mother is not None:
+            mother_level += 1
+            mother = mother.mother
 
-        return level
+        return max(father_level, mother_level)
 
     def get_relationship(self, other_member):
         """
