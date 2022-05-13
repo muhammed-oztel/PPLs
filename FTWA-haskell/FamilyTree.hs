@@ -25,10 +25,10 @@ remove element list = filter (\e -> e/=element) list
 
 addChild :: FamilyMember -> FamilyMember -> FamilyMember -> FamilyTree -> FamilyTree
 addChild child mother father ft = do
-    let newChild = child{mother=mother, father=father}
+    let newChild = child{mother=Just mother, father=Just father}
     let newMother = mother{children=newChild:children mother}
     let newFather = father{children=newChild:children father}
-    return ft{treeMembers=newChild:newMother:newFather: remove newChild (treeMembers ft)}
+    ft{treeMembers=newChild:newMother:newFather: remove child (treeMembers ft)}
 
 addMember :: FamilyTree -> FamilyMember -> FamilyTree
 addMember ft fm = ft { treeMembers = fm : treeMembers ft }
@@ -58,22 +58,10 @@ updatePerson (FamilyTree name members root) = do
         putStrLn "8. Return to  tree menu"
         return (FamilyTree name members root)
 
-    -- if updateName `elem` ( members) 
-    --     then do
-    --         putStrLn "1. Add a spouse"
-    --         putStrLn "2. Add a child"
-    --         putStrLn "3. Add gender"
-    --         putStrLn "4. Add birth date"
-    --         putStrLn "5. Add death date"
-    --         putStrLn "6. Add father"
-    --         putStrLn "7. Add mother"
-    --         putStrLn "8. Return to  tree menu"
-    --         option <- getLine
-    --         putStrLn "Enter new information:"
-    --         -- case option of
-    --         --     "7" -> do
 
-            
-    -- else do
-    --     putStrLn "Person not found"
-    -- return (FamilyTree name members root)
+-- getMemberDetails :: FamilyMember -> FamilyTree -> IO 
+-- getMemberDetails fm ft = do
+--     putStrLn "Details of " ++ firstName fm ++ " " ++ lastName fm
+--     putStrLn "age: " ++ show (getAge fm)
+--     putStrLn "is alive: " ++ show (isAlive fm)
+--     putStrLn "level in Family tree: " ++ show (getLevel fm)
