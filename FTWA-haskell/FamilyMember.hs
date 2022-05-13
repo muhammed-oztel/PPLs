@@ -24,14 +24,15 @@ instance Eq FamilyMember where
 
 
 
-addSpouse :: FamilyMember -> FamilyMember -> (FamilyMember, FamilyMember)
-addSpouse fm1 fm2 = (fm1{spouse = Just fm2}, fm2{spouse = Just fm1})
+addSpouse :: FamilyMember -> FamilyMember -> [FamilyMember]
+addSpouse fm1 fm2 = [fm1{spouse = Just fm2}, fm2{spouse = Just fm1}]
 
 
 --check if the person has a death date then its not alive
 isAlive :: FamilyMember -> Bool
 isAlive fm = isNothing $ deathDate fm
 
+ 
 
 getAge :: FamilyMember -> Int
 getAge fm = fromIntegral $ diffDays (fromJust $ birthDate fm) (fromJust $ deathDate fm)

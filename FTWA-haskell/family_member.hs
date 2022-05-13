@@ -50,6 +50,10 @@ is_mother member1 member2 = isJust (mother member1) && (fromJust (mother member1
 is_sibling :: FamilyMember -> FamilyMember -> Bool
 is_sibling member1 member2 = is_father member1 member2 || is_mother member1 member2
 
+-- function called as is_male
+is_male :: FamilyMember -> Bool
+is_male member = (gender member) == "male"
+
 -- find if a member is a brother of another member from the family tree
 is_brother :: FamilyMember -> FamilyMember -> Bool
 is_brother member1 member2 = is_sibling member1 member2 && is_male member2
@@ -58,31 +62,20 @@ is_brother member1 member2 = is_sibling member1 member2 && is_male member2
 is_sister :: FamilyMember -> FamilyMember -> Bool
 is_sister member1 member2 = is_sibling member1 member2 && (is_male member2) == False
 
--- function called as is_male
-is_male :: FamilyMember -> Bool
-is_male member = (gender member) == "male"
+-- find if a member is a son of another member
+is_son :: FamilyMember -> FamilyMember -> Bool
+is_son member1 member2 = is_sibling member1 member2 && is_male member2
 
--- find the brothers of mother from the family tree
-find_brothers_of_mother :: FamilyMember -> [FamilyMember]
-find_brothers_of_mother member = filter (\x -> is_brother x member) family_tree
-    where is_brother x y = is_sibling x y && is_mother x y
 
--- find the sisters of my mother from the family tree
-find_sisters_of_mother :: FamilyMember -> [FamilyMember]
-find_sisters_of_mother member = filter (\x -> is_sister x member) family_tree
-    where is_sister x y = is_sibling x y && is_mother x y
 
--- find the relationship of a given member to another member
+
+
+
+-- find the relationship of given 2 members from the family tree
 find_relationship :: FamilyMember -> FamilyMember -> String
-find_relationship member1 member2 =
-    if member1 == member2 then "self"
-    else if is_father member1 member2 then "father"
-    else if is_mother member1 member2 then "mother"
-    else if is_brother member1 member2 then "brother"
-    else if is_sister member1 member2 then "sister"
-    else if is_sibling member1 member2 then "sibling"
-    else if is_spouse member1 member2 then "spouse"
-    else if is_child member1 member2 then "child"
-    else "unknown"
-    
-
+find_relationship member1 member2
+    | is_father member1 member2 = "father"
+    | is_mother member1 member2 = "mother"
+    | is_brother member1 member2 = "brother"
+    | is_sister member1 member2 = "sister"
+    | otherwise = "unrelated"
