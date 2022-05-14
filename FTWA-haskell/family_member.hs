@@ -2,16 +2,14 @@ import Data.Time.Calendar
 
 
 data FamilyMember = FamilyMember {
-    name :: Maybe String, 
-    surname :: Maybe String, 
+    full_name :: Maybe String, 
     gender :: Maybe String, 
     birth_date :: Maybe DateTime, 
     death_date :: Maybe DateTime, 
-    father :: Maybe FamilyMember, 
-    mother :: Maybe FamilyMember, 
-    children :: Maybe [FamilyMember], 
-    tree :: Maybe String,
-    spouse :: Maybe FamilyMember
+    father :: Maybe String, 
+    mother :: Maybe String, 
+    children :: Maybe [String],
+    spouse :: Maybe String
     } deriving (Show)
 
 -- create a family tree as a list of family members
@@ -21,61 +19,85 @@ family_tree :: [FamilyMember]
 add_family_member :: FamilyMember -> [FamilyMember] -> [FamilyMember]
 add_family_member member family_tree = family_tree ++ [member]
 
--- function to add a member as a child to family members without adding the child to the family tree
-add_child :: FamilyMember -> FamilyMember -> FamilyMember
-add_child member child = member {children = children member ++ [child]}
+set_full_name :: String -> FamilyMember -> FamilyMember
+set_full_name name member = member {full_name = Just name}
 
--- function to add a member as spouse to a family member without adding the it to the family tree
-add_spouse :: FamilyMember -> FamilyMember -> FamilyMember
-add_spouse member spouse = member {spouse = spouse}
+set_gender :: String -> FamilyMember -> FamilyMember
+set_gender gender member = member {gender = Just gender}
 
--- check a person is dead
-is_dead :: FamilyMember -> Bool
-is_dead member = isJust (death_date member)
+set_birth_date :: DateTime -> FamilyMember -> FamilyMember
+set_birth_date birth_date member = member {birth_date = Just birth_date}
 
--- find the level of a given member in the family tree
-find_level :: FamilyMember -> Int
-find_level member = length (takeWhile (/= member) family_tree)
+set_death_date :: DateTime -> FamilyMember -> FamilyMember
+set_death_date death_date member = member {death_date = Just death_date}
 
+set_father :: String -> FamilyMember -> FamilyMember
+set_father father member = member {father = Just father}
 
--- find if a member is a father of another member from the family tree
-is_father :: FamilyMember -> FamilyMember -> Bool
-is_father member1 member2 = isJust (father member1) && (fromJust (father member1) == member2)
+set_mother :: String -> FamilyMember -> FamilyMember
+set_mother mother member = member {mother = Just mother}
 
--- find if a member is a mother of another member from the family tree
-is_mother :: FamilyMember -> FamilyMember -> Bool
-is_mother member1 member2 = isJust (mother member1) && (fromJust (mother member1) == member2)
+add_child :: String -> FamilyMember -> FamilyMember
+add_child child member = member {children = Just (child : (children member))}
 
--- find if a member is a sibling of another member from the family tree
-is_sibling :: FamilyMember -> FamilyMember -> Bool
-is_sibling member1 member2 = is_father member1 member2 || is_mother member1 member2
-
--- function called as is_male
-is_male :: FamilyMember -> Bool
-is_male member = (gender member) == "male"
-
--- find if a member is a brother of another member from the family tree
-is_brother :: FamilyMember -> FamilyMember -> Bool
-is_brother member1 member2 = is_sibling member1 member2 && is_male member2
-
--- find if a member is a sister of another member from the family tree
-is_sister :: FamilyMember -> FamilyMember -> Bool
-is_sister member1 member2 = is_sibling member1 member2 && (is_male member2) == False
-
--- find if a member is a son of another member
-is_son :: FamilyMember -> FamilyMember -> Bool
-is_son member1 member2 = is_sibling member1 member2 && is_male member2
+set_spouse :: String -> FamilyMember -> FamilyMember
+set_spouse spouse member = member {spouse = Just spouse}
 
 
 
+-- return a member of the family tree with the given name
+get_family_member :: String -> [FamilyMember] -> Maybe FamilyMember
+get_family_member name family_tree = find (\member -> name == (name member)) family_tree
+
+is_father :: String -> String -> [FamilyMember] -> Bool
+is_father fm1 fm2 ft = father (fromJust (get_family_member fm1 ft)) == Just fm2
+
+if_mother :: String -> String -> [FamilyMember] -> Bool
+if_mother name mother family_tree = (mother get_family_member name family_tree) == Just mother
+
+is_siblings :: String -> String -> [FamilyMember] -> Bool
+is_siblings name name2 family_tree = (mother get_family_member name family_tree) == (mother get_family_member name2 family_tree) && (father get_family_member name family_tree) == (father get_family_member name2 family_tree)
+
+is_male :: String -> [FamilyMember] -> Bool
+is_male name family_tree = gender (get_family_member name family_tree) == "male"
+
+is_son :: String -> String -> [FamilyMember] -> Bool
+is_son child member family_tree = (is_father child member family_tree || is_mother child member family_tree) && is_male child family_tree
+
+is_daughter :: String -> String -> [FamilyMember] -> Bool
+is_daughter child member family_tree = (is_father child member family_tree || is_mother child member family_tree) && (is_male child family_tree) == False
+
+is_younger :: String -> String -> [FamilyMember] -> Bool
+is_younger member1 member2 family_tree = birth_date (get_family_member member1 family_tree) < birth_date (get_family_member member2 family_tree)
+
+is_brother :: String -> String -> [FamilyMember] -> Bool
+is_brother member1 member2 family_tree = is_siblings member1 member2 family_tree && is_male member1 family_tree
+
+is_sister :: String -> String -> [FamilyMember] -> Bool
+is_sister member1 member2 family_tree = is_siblings member1 member2 family_tree && (is_male member1 family_tree) == False
+
+is_little_brother :: String -> String -> [FamilyMember] -> Bool
+is_little_brother member1 member2 family_tree = is_brother member1 member2 family_tree && is_younger member1 member2 family_tree
+
+is_big_brother :: String -> String -> [FamilyMember] -> Bool
+is_big_brother member1 member2 family_tree = is_brother member1 member2 family_tree && (is_younger member2 member1 family_tree) == False
+
+is_little_sister :: String -> String -> [FamilyMember] -> Bool
+is_little_sister member1 member2 family_tree = is_sister member1 member2 family_tree && is_younger member1 member2 family_tree
+
+is_big_sister :: String -> String -> [FamilyMember] -> Bool
+is_big_sister member1 member2 family_tree = is_sister member1 member2 family_tree && (is_younger member2 member1 family_tree) == False
+
+is_amca :: String -> String -> [FamilyMember] -> Bool
+is_amca member1 member2 family_tree = is_brother (father get_family_member member1 family_tree) member2 family_tree
 
 
 
--- find the relationship of given 2 members from the family tree
-find_relationship :: FamilyMember -> FamilyMember -> String
-find_relationship member1 member2
-    | is_father member1 member2 = "father"
-    | is_mother member1 member2 = "mother"
-    | is_brother member1 member2 = "brother"
-    | is_sister member1 member2 = "sister"
-    | otherwise = "unrelated"
+
+-- main function
+main :: IO ()
+main = do
+    putStrLn "Hello, what is your name?"
+    name <- getLine
+    putStrLn $ "Hello, " ++ name ++ ", what is your
+        
