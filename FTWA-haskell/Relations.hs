@@ -29,7 +29,7 @@ is_daughter :: String -> String -> [FamilyMember] -> Bool
 is_daughter child member ft = (is_father child member ft || is_mother child member ft) && (is_male child ft) == False
 
 is_younger :: String -> String -> [FamilyMember] -> Bool
-is_younger member1 member2 family_tree = birthDate ( fromJust (get_family_member member1 family_tree)) < birthDate ( fromJust (get_family_member member2 family_tree))
+is_younger yound old family_tree = birthDate ( fromJust (get_family_member yound family_tree)) > birthDate ( fromJust (get_family_member old family_tree))
 
 is_brother :: String -> String -> [FamilyMember] -> Bool
 is_brother member1 member2 family_tree = is_siblings member1 member2 family_tree && is_male member1 family_tree
@@ -40,17 +40,26 @@ is_sister member1 member2 family_tree = is_siblings member1 member2 family_tree 
 is_little_brother :: String -> String -> [FamilyMember] -> Bool
 is_little_brother member1 member2 family_tree = is_brother member1 member2 family_tree && is_younger member1 member2 family_tree
 
--- is_big_brother :: String -> String -> [FamilyMember] -> Bool
--- is_big_brother member1 member2 family_tree = is_brother member1 member2 family_tree && (is_younger member2 member1 family_tree) == False
+is_big_brother :: String -> String -> [FamilyMember] -> Bool
+is_big_brother member1 member2 family_tree = is_brother member1 member2 family_tree && is_younger member2 member1 family_tree
 
--- is_little_sister :: String -> String -> [FamilyMember] -> Bool
--- is_little_sister member1 member2 family_tree = is_sister member1 member2 family_tree && is_younger member1 member2 family_tree
+is_little_sister :: String -> String -> [FamilyMember] -> Bool
+is_little_sister member1 member2 family_tree = is_sister member1 member2 family_tree && is_younger member1 member2 family_tree
 
--- is_big_sister :: String -> String -> [FamilyMember] -> Bool
--- is_big_sister member1 member2 family_tree = is_sister member1 member2 family_tree && (is_younger member2 member1 family_tree) == False
+is_big_sister :: String -> String -> [FamilyMember] -> Bool
+is_big_sister member1 member2 family_tree = is_sister member1 member2 family_tree && is_younger member2 member1 family_tree
 
--- is_amca :: String -> String -> [FamilyMember] -> Bool
--- is_amca member1 member2 family_tree = is_brother (father get_family_member member1 family_tree) member2 family_tree
+is_amca :: String -> String -> [FamilyMember] -> Bool
+is_amca member1 member2 family_tree = is_brother (fromJust (father (fromJust (get_family_member member1 family_tree)))) member2 family_tree
 
+is_hala :: String -> String -> [FamilyMember] -> Bool
+is_hala member1 member2 family_tree = is_sister member1 (fromJust (father (fromJust (get_family_member member2 family_tree)))) family_tree
 
+is_dayi :: String -> String -> [FamilyMember] -> Bool
+is_dayi member1 member2 family_tree = is_brother member1 (fromJust (mother (fromJust (get_family_member member2 family_tree)))) family_tree
 
+is_teyze :: String -> String -> [FamilyMember] -> Bool
+is_teyze member1 member2 family_tree = is_sister member1 (fromJust (mother (fromJust (get_family_member member2 family_tree)))) family_tree
+
+is_yegen :: String -> String -> [FamilyMember] -> Bool
+is_yegen member1 member2 family_tree = find (\member -> member == member2)
