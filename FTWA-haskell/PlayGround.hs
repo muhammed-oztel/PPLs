@@ -229,8 +229,10 @@ main = do
     -- putStrLn $ show $ is_siblings "Selin Ozgur" "Ali Ozgur" (treeMembers ozgurTree)
     -- putStrLn $ show $ is_hala "Selin Ozgur" "Suleiman Ozgur" (treeMembers ozgurTree)
     -- putStrLn $ show $ is_teyze "Zeynep Isci" "Batuhan Ozgur" (treeMembers ozgurTree)
+    -- putStrLn $ show $ is_yegen "Burcu Ozgur" "Omer Ozgur" (treeMembers ozgurTree)
 
 
+    putStrLn $ show $ is_cousin "Selin Ozgur" "Suleiman Ozgur" (treeMembers ozgurTree)
 
     -- TODO
     -- putStrLn $ show $ is_dayi "Ali Ozgur" "Zeynep Isci" (treeMembers ozgurTree)

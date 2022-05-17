@@ -61,5 +61,23 @@ is_dayi member1 member2 family_tree = is_brother member1 (fromJust (mother (from
 is_teyze :: String -> String -> [FamilyMember] -> Bool
 is_teyze member1 member2 family_tree = is_sister member1 (fromJust (mother (fromJust (get_family_member member2 family_tree)))) family_tree
 
-is_yegen :: String -> String -> [FamilyMember] -> Bool
-is_yegen member1 member2 family_tree = find (\member -> member == member2)
+is_yegen :: String -> String -> [FamilyMember] -> Bool -- check if yegen is one of the children of member1's siblings
+is_yegen member1 yegen family_tree = do
+    let siblings = remove member1 $ children $ fromJust $ get_family_member (fromJust $ father $ fromJust $ get_family_member member1 family_tree) family_tree
+    -- get every name of the sibling children from children list
+    let children_names = concat (map (\sibling -> children (fromJust (get_family_member sibling family_tree))) siblings)
+
+    -- check if yegen is one of the children of member1's siblings
+    if (yegen `elem` children_names) then True else False
+
+is_cousin :: String -> String -> [FamilyMember] -> Bool
+is_cousin member1 cousin family_tree = do
+    let father_siblings = remove member1 $ children $ fromJust $ get_family_member (fromJust $ father $ fromJust $ get_family_member member1 family_tree) family_tree
+    let mother_siblings = remove member1 $ children $ fromJust $ get_family_member (fromJust $ mother $ fromJust $ get_family_member member1 family_tree) family_tree
+    let siblings = father_siblings ++ mother_siblings
+    let cousins_names = concat (map (\sibling -> children (fromJust (get_family_member sibling family_tree))) siblings)
+    if (cousin `elem` cousins_names) then True else False
+
+
+
+
