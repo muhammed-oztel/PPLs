@@ -24,8 +24,6 @@ instance Eq FamilyMember where
     (==) (FamilyMember fname1 lname1 _ _ _ _ _ _ _ _) (FamilyMember fname2 lname2 _ _ _ _ _ _ _ _) = fname1 == fname2 && lname1 == lname2
 
 
-
-
 --check if the person has a death date then its not alive
 isAlive :: FamilyMember -> Bool
 isAlive fm = isNothing $ deathDate fm
