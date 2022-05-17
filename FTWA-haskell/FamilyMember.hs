@@ -10,11 +10,11 @@ data FamilyMember = FamilyMember {
     gender :: String,
     birthDate :: Maybe Day,
     deathDate :: Maybe Day,
-    father :: Maybe FamilyMember,
-    mother :: Maybe FamilyMember,
-    children :: [FamilyMember],
+    father :: Maybe String,
+    mother :: Maybe String,
+    children :: [String],
     tree :: Maybe String,
-    spouse :: Maybe FamilyMember
+    spouse :: Maybe String
 } deriving (Show)
 
 
@@ -22,11 +22,6 @@ data FamilyMember = FamilyMember {
 -- if the birth date is bigger the the person bigger
 instance Eq FamilyMember where
     (==) (FamilyMember fname1 lname1 _ _ _ _ _ _ _ _) (FamilyMember fname2 lname2 _ _ _ _ _ _ _ _) = fname1 == fname2 && lname1 == lname2
-
-
-
-addSpouse :: FamilyMember -> FamilyMember -> [FamilyMember]
-addSpouse fm1 fm2 = [fm1{spouse = Just fm2}, fm2{spouse = Just fm1}]
 
 
 --check if the person has a death date then its not alive
@@ -43,10 +38,10 @@ getAge fm = (diffDays (fromGregorian 2022 05 13) (fromJust $ birthDate fm)) `div
 -- getLevel :: FamilyMember -> [FamilyMember] -> Int -> Int
 -- getLevel fm [] level = level 
 -- getLevel Nothing _ _ = 0
--- getLevel fm fmList = map (\x -> if x == father fm then getLevel x fmList (level + 1) )
+-- getLevel fm fmList = (\x -> if x == father fm then getLevel x fmList (level + 1) )
 
--- TODO: add relationships
--- getRelationship :: FamilyMember -> String
+
+
 setTree :: FamilyMember -> String -> FamilyMember
 setTree fm tree = fm{tree = Just tree}
 

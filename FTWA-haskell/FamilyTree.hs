@@ -7,28 +7,35 @@ import FamilyMember
 data FamilyTree = FamilyTree {
     treeName :: String,
     treeMembers :: [FamilyMember],
-    treeRoot :: Maybe FamilyMember
+    treeRoot :: Maybe String
 } deriving (Show)
 
 
 
 remove element list = filter (\e -> e/=element) list
 
--- addPerson :: FamilyTree -> IO FamilyTree
--- addPerson tree = do
---     putStrLn "Enter the name of the person:"
---     givenName <- getLine
---     putStrLn "Enter the surname of the person:"
---     givenSurname <- getLine
---     putStrLn "Enter the gender of the person(M/F):"
---     givenGender <- getLine
+-- funtion takes full name string and family tree and returns family member
+getMember :: String -> FamilyTree -> Maybe FamilyMember
+getMember name tree = find (\x -> fullName x == name) (treeMembers tree)
 
-addChild :: FamilyMember -> FamilyMember -> FamilyMember -> FamilyTree -> FamilyTree
+addSpouse :: String -> String -> FamilyTree -> FamilyTree
+addSpouse s1 s2 ft = do
+    let fm1 = fromJust (getMember s1 ft)
+    let fm2 = fromJust (getMember s2 ft)
+    let removedMembers = remove fm1 (remove fm2 (treeMembers ft))
+    ft{treeMembers=fm1{spouse=Just s1}:fm2{spouse=Just s2}:removedMembers}
+
+
+addChild :: String -> String -> String -> FamilyTree -> FamilyTree
 addChild child mother father ft = do
-    let newChild = child{mother=Just mother, father=Just father}
-    let newMother = mother{children=newChild:children mother}
-    let newFather = father{children=newChild:children father}
-    ft{treeMembers=newChild:newMother:newFather: remove child (treeMembers ft)}
+    let memChild = fromJust (getMember child ft)
+    let memMother = fromJust (getMember mother ft)
+    let memFather = fromJust (getMember father ft)
+    let removedMembers = remove memChild (remove memMother (remove memFather (treeMembers ft)))
+    let newChild = memChild{mother=Just mother, father=Just father}
+    let newMother =memMother{children=child:children memMother}
+    let newFather =memFather{children=child:children memFather}
+    ft{treeMembers=newChild:newMother:newFather:removedMembers}
 
 addMember :: FamilyTree -> FamilyMember -> FamilyTree
 addMember ft fm = ft { treeMembers = fm : treeMembers ft }
@@ -65,3 +72,17 @@ updatePerson (FamilyTree name members root) = do
 --     putStrLn "age: " ++ show (getAge fm)
 --     putStrLn "is alive: " ++ show (isAlive fm)
 --     putStrLn "level in Family tree: " ++ show (getLevel fm)
+
+
+-- find if a member is a father of another member from the family tree
+-- is_father :: FamilyMember -> FamilyMember -> Bool
+-- is_father member1 member2 = isJust (father member1) && (fromJust (father member1) == member2)
+
+
+getRelationship :: FamilyMember -> FamilyMember -> FamilyTree -> IO ()
+getRelationship fm1 fm2 ft = do
+    putStrLn "Hello"
+    -- if is_father fm1 fm2 ft
+    --     then putStrLn "Father"
+    -- else do
+    --     putStrLn "Not a father"
