@@ -137,3 +137,42 @@ is_daughter_law member1 daughter_law family_tree = do
 
     if (daughter_law `elem` female_spouse) then True else False
 
+-- !TODO bacanak
+
+is_bacanak :: String -> String -> [FamilyMember] -> Bool
+is_bacanak member1 bacanak family_tree = do
+    let mem1_spouse = fromJust (spouse (fromJust (get_family_member member1 family_tree)))
+    let siblings = children (fromJust (get_family_member (fromJust (father (fromJust (get_family_member mem1_spouse family_tree))) ) family_tree))  
+    let sibling_spouses = map (\sibling -> fromJust (spouse (fromJust (get_family_member sibling family_tree)))) siblings
+
+    let male_spouses = filter (\spouse -> gender (fromJust (get_family_member spouse family_tree)) == "male") sibling_spouses
+    if (bacanak `elem` male_spouses) then True else False
+
+-- !TODO elti
+
+is_elti :: String -> String -> [FamilyMember] -> Bool
+is_elti member1 elti family_tree = do
+    let mem1_spouse = fromJust (spouse (fromJust (get_family_member member1 family_tree)))
+    let siblings = children (fromJust (get_family_member (fromJust (father (fromJust (get_family_member mem1_spouse family_tree))) ) family_tree))  
+    let sibling_spouses = map (\sibling -> fromJust (spouse (fromJust (get_family_member sibling family_tree)))) siblings
+
+    let female_spouses = filter (\spouse -> gender (fromJust (get_family_member spouse family_tree)) == "female") sibling_spouses
+    if (elti `elem` female_spouses) then True else False
+
+-- !TODO baldız
+is_baldiz :: String -> String -> [FamilyMember] -> Bool
+is_baldiz member1 baldiz family_tree = do
+    let mem1_spouse =  fromJust (spouse (fromJust (get_family_member member1 family_tree)))
+    let siblings = children (fromJust (get_family_member (fromJust (father (fromJust (get_family_member mem1_spouse family_tree))) ) family_tree))  
+    let female_siblings = filter (\sibling -> gender (fromJust (get_family_member sibling family_tree)) == "female") siblings
+
+    if (baldiz `elem` female_siblings) then True else False
+
+-- !TODO kayinbirader
+is_kayinbirader :: String -> String -> [FamilyMember] -> Bool
+is_kayinbirader member1 kayinbirader family_tree = do
+    let mem1_spouse =  fromJust (spouse (fromJust (get_family_member member1 family_tree)))
+    let siblings = children (fromJust (get_family_member (fromJust (father (fromJust (get_family_member mem1_spouse family_tree))) ) family_tree))  
+    let male_siblings = filter (\sibling -> gender (fromJust (get_family_member sibling family_tree)) == "male") siblings
+
+    if (kayinbirader `elem` male_siblings) then True else False

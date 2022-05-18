@@ -239,7 +239,7 @@ main = do
 
 
     putStrLn $ show $ is_father_law "Ali Ozgur" "Selin Ozgur" (treeMembers ozgurTree)
-
+    
 
     -- TODO
     -- putStrLn $ show $ is_dayi "Ali Ozgur" "Zeynep Isci" (treeMembers ozgurTree)
