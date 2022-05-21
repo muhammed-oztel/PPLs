@@ -5,9 +5,6 @@ import Data.List
 import Data.Maybe
 
 
-
-
-
 is_father :: String -> String -> [FamilyMember] -> Bool
 is_father fm1 fm2 ft = father (fromJust (get_family_member fm1 ft)) == Just fm2
 
@@ -71,7 +68,7 @@ is_teyze member1 member2 family_tree = do
     else is_sister member2 (fromJust (mother (fromJust (get_family_member member1 family_tree)))) family_tree &&
         is_sister (fromJust (mother (fromJust (get_family_member member1 family_tree)))) member2 family_tree
 
-is_yegen :: String -> String -> [FamilyMember] -> Bool -- check if yegen is one of the children of member1's siblings
+is_yegen :: String -> String -> [FamilyMember] -> Bool 
 is_yegen member1 yegen family_tree = do
     if (father $ fromJust $ get_family_member member1 family_tree) == Nothing
         then False
@@ -104,7 +101,6 @@ is_cousin member1 cousin family_tree = do
         else False
 
 
--- sister spouse only
 is_eniste :: String -> String -> [FamilyMember] -> Bool
 is_eniste member1 eniste family_tree = do
     if (spouse (fromJust (get_family_member eniste family_tree))) == Nothing then False
@@ -119,13 +115,12 @@ is_yenge member1 yenge family_tree = do
         let yenge_spouse = fromJust (spouse (fromJust (get_family_member yenge family_tree)))
         is_brother member1 yenge_spouse family_tree && is_brother yenge_spouse member1 family_tree
 is_mother_law :: String -> String -> [FamilyMember] -> Bool
-is_mother_law member1 mother_law family_tree = do -- find the mother in law
+is_mother_law member1 mother_law family_tree = do 
     if (spouse $ fromJust $ get_family_member member1 family_tree) == Nothing then False
     else do 
         let mem1_spouse = fromJust $ spouse $ fromJust $ get_family_member member1 family_tree
         let mem1_spouse_mother = mother $ fromJust $ get_family_member mem1_spouse family_tree
 
-        -- check if mother_low is one of the mother's spouse's children
         if mem1_spouse_mother == (Just mother_law) then True else False
 
 is_father_law :: String -> String -> [FamilyMember] -> Bool
@@ -135,7 +130,6 @@ is_father_law member1 father_law family_tree = do -- find the father in law
         let mem1_spouse = fromJust $ spouse $ fromJust $ get_family_member member1 family_tree
         let mem1_spouse_father = father $ fromJust $ get_family_member mem1_spouse family_tree
 
-        -- check if father_low is one of the father's spouse's children
         if mem1_spouse_father == (Just father_law) then True else False
 
 
@@ -153,7 +147,6 @@ is_daughter_law member1 daughter_law family_tree = do
 
     if ((Just daughter_law) `elem` female_spouse) then True else False
 
--- !TODO bacanak
 
 is_bacanak :: String -> String -> [FamilyMember] -> Bool
 is_bacanak member1 bacanak family_tree = do
@@ -165,7 +158,6 @@ is_bacanak member1 bacanak family_tree = do
 
         if (is_sister mem1_spouse mem2_spouse family_tree && is_sister mem2_spouse mem1_spouse family_tree) then True else False
 
--- !TODO elti
 
 is_elti :: String -> String -> [FamilyMember] -> Bool
 is_elti member1 elti family_tree = do
@@ -177,7 +169,7 @@ is_elti member1 elti family_tree = do
 
         if (is_brother mem1_spouse mem2_spouse family_tree && is_brother mem2_spouse mem1_spouse family_tree) then True else False
 
--- !TODO baldız
+
 is_baldiz :: String -> String -> [FamilyMember] -> Bool
 is_baldiz member1 baldiz family_tree = do
     if (spouse (fromJust (get_family_member member1 family_tree))) == Nothing then False
@@ -186,8 +178,6 @@ is_baldiz member1 baldiz family_tree = do
         is_sister mem1_spouse baldiz family_tree && is_sister baldiz mem1_spouse family_tree
 
     
-
--- !TODO kayinbirader
 is_kayinbirader :: String -> String -> [FamilyMember] -> Bool
 is_kayinbirader member1 kayinbirader family_tree = do
     if (spouse (fromJust (get_family_member member1 family_tree))) == Nothing then False
