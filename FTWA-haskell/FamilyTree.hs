@@ -1,7 +1,6 @@
 module FamilyTree where
 import Data.List
 import Data.Maybe
-import Data.Time.Calendar
 import FamilyMember 
 
 data FamilyTree = FamilyTree {
@@ -15,10 +14,6 @@ get_family_member :: String -> [FamilyMember] -> Maybe FamilyMember
 get_family_member name family_tree = find (\member -> name == (fullName member)) family_tree
 
 remove element list = filter (\e -> e/=element) list
-
--- funtion takes full name string and family tree and returns family member
-getMember :: String -> FamilyTree -> Maybe FamilyMember
-getMember name tree = find (\x -> fullName x == name) (treeMembers tree)
 
 updateFather :: FamilyTree -> String -> String -> Maybe String -> FamilyTree
 updateFather tree ol child Nothing = tree

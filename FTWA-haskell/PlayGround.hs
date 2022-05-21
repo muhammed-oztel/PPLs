@@ -8,6 +8,9 @@ import Control.Exception
 import Relations
 import FamilyMember 
 import FamilyTree
+import Data.Tree 
+import PrettyPrint
+import System.Exit
 
 
 ozgurTree = FamilyTree{
@@ -346,10 +349,14 @@ setDeathDate family_tree = do
     putStrLn "Enter the death day of the person:"
     deathDay <- getLine
     let dod = fromGregorian (read deathYear) (read deathMonth) (read deathDay)
-    let member = fromJust (get_family_member memberName (treeMembers family_tree))
-    let newMember = member{deathDate=Just dod}
-    let removedMembers = remove member (treeMembers family_tree)
-    displayMenu family_tree{treeMembers=newMember:removedMembers}
+    if dod > (fromGregorian 2022 05 22) then do
+        putStrLn "ERROR!!! You are trying to set a date in the future."
+        displayMenu family_tree
+    else do
+        let member = fromJust (get_family_member memberName (treeMembers family_tree))
+        let newMember = member{deathDate=Just dod}
+        let removedMembers = remove member (treeMembers family_tree)
+        displayMenu family_tree{treeMembers=newMember:removedMembers}
 
 
 updatePerson :: FamilyTree -> IO ()
@@ -359,6 +366,7 @@ updatePerson ft = do
     putStrLn "2. Surname"
     putStrLn "3. Birth date"
     putStrLn "4. Gender"
+    putStrLn "Please enter your choice: "
     choice <- getLine
 
     case choice of 
@@ -368,6 +376,15 @@ updatePerson ft = do
         "4" -> updateGender ft
         _ -> putStrLn "Invalid choice"
         >> displayMenu ft
+
+printTree :: FamilyTree -> IO ()
+printTree ft = do
+    putStrLn "Enter the name & surname of the person you want to print the tree of:"
+    memberName <- getLine
+    let member = fromJust (get_family_member memberName (treeMembers ft))
+    putStrLn $ "The tree of " ++ memberName ++ " is"
+    putStrLn $  drawTree $ createNodes member ft
+    displayMenu ft
 
 displayMenu :: FamilyTree -> IO ()
 displayMenu ft = do
@@ -392,12 +409,15 @@ displayMenu ft = do
         "5" -> setDeathDate ft
         "6" -> askForRelations ft
         "7" -> updatePerson ft
-        -- "8" -> printTree ft
-        "9" -> putStrLn "Exiting..."
+        "8" -> printTree ft
+        "9" -> exit
         _ -> putStrLn "Invalid choice"
         >> displayMenu ft
 
-
+exit :: IO ()
+exit = do
+    die ("Exiting...")
+    
 
 
 main::IO()
@@ -405,10 +425,6 @@ main = do
     putStrLn "Welcome to the Family Tree Warehouse!"
     
     displayMenu ozgurTree
-
-
-
-
 
 
 updateName :: FamilyTree -> IO ()
@@ -474,3 +490,4 @@ updateGender ft = do
     let newMember = member{gender=newGender}
     let removedMember = remove member (treeMembers ft)
     displayMenu ft{treeMembers=newMember:removedMember}
+
