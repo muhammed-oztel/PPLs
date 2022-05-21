@@ -17,31 +17,33 @@ is_mother :: String -> String -> [FamilyMember] -> Bool
 is_mother fm1 fm2 ft = mother (fromJust (get_family_member fm1 ft)) == Just fm2
 
 is_siblings :: String -> String -> [FamilyMember] -> Bool
-is_siblings fm1 fm2 ft = mother (fromJust (get_family_member fm1 ft)) == mother (fromJust (get_family_member fm2 ft)) && father (fromJust (get_family_member fm1 ft)) == father (fromJust (get_family_member fm2 ft))
+is_siblings fm1 fm2 ft = mother (fromJust (get_family_member fm1 ft)) == (mother (fromJust (get_family_member fm2 ft))) && 
+        father (fromJust (get_family_member fm1 ft)) == father (fromJust (get_family_member fm2 ft)) && 
+        mother (fromJust (get_family_member fm1 ft)) /= Nothing && father (fromJust (get_family_member fm1 ft)) /= Nothing
 
 is_male :: String -> [FamilyMember] -> Bool
 is_male fm1 ft = gender (fromJust (get_family_member fm1 ft)) == "male"
 
 is_son :: String -> String -> [FamilyMember] -> Bool
-is_son child member ft = (is_father child member ft || is_mother child member ft) && is_male child ft
+is_son member child ft = (is_father child member ft || is_mother child member ft) && is_male child ft
 
 is_daughter :: String -> String -> [FamilyMember] -> Bool
-is_daughter child member ft = (is_father child member ft || is_mother child member ft) && (is_male child ft) == False
+is_daughter member child ft = (is_father child member ft || is_mother child member ft) && (is_male child ft) == False
 
 is_younger :: String -> String -> [FamilyMember] -> Bool
 is_younger young old family_tree = birthDate ( fromJust (get_family_member young family_tree)) > birthDate ( fromJust (get_family_member old family_tree))
 
 is_brother :: String -> String -> [FamilyMember] -> Bool
-is_brother member1 member2 family_tree = is_siblings member1 member2 family_tree && is_male member1 family_tree
+is_brother member1 brother family_tree = is_siblings member1 brother family_tree && is_male brother family_tree
 
 is_sister :: String -> String -> [FamilyMember] -> Bool
 is_sister member1 sister family_tree = is_siblings member1 sister family_tree && (is_male sister family_tree) == False
 
 is_little_brother :: String -> String -> [FamilyMember] -> Bool
-is_little_brother member1 member2 family_tree = is_brother member1 member2 family_tree && is_younger member1 member2 family_tree
+is_little_brother member1 lit_bro family_tree = is_brother member1 lit_bro family_tree && is_younger lit_bro member1 family_tree
 
 is_big_brother :: String -> String -> [FamilyMember] -> Bool
-is_big_brother member1 member2 family_tree = is_brother member1 member2 family_tree && is_younger member2 member1 family_tree
+is_big_brother member1 big_bro family_tree = is_brother member1 big_bro family_tree && is_younger member1 big_bro family_tree
 
 is_little_sister :: String -> String -> [FamilyMember] -> Bool
 is_little_sister member1 lit_sis family_tree = is_sister member1 lit_sis family_tree && is_younger lit_sis member1 family_tree
@@ -50,129 +52,147 @@ is_big_sister :: String -> String -> [FamilyMember] -> Bool
 is_big_sister member1 big_sis family_tree = is_sister member1 big_sis family_tree && is_younger member1 big_sis family_tree
 
 is_amca :: String -> String -> [FamilyMember] -> Bool
-is_amca member1 member2 family_tree = is_brother (fromJust (father (fromJust (get_family_member member1 family_tree)))) member2 family_tree
+is_amca member1 amca family_tree = do 
+    if (father (fromJust (get_family_member member1 family_tree))) == Nothing then False
+    else (is_brother (fromJust (father (fromJust (get_family_member member1 family_tree)))) amca family_tree) &&
+        (is_brother amca (fromJust (father (fromJust (get_family_member member1 family_tree)))) family_tree)
 
 is_hala :: String -> String -> [FamilyMember] -> Bool
-is_hala member1 member2 family_tree = is_sister member1 (fromJust (father (fromJust (get_family_member member2 family_tree)))) family_tree
+is_hala member1 hala family_tree = do
+    if ((father (fromJust (get_family_member member1 family_tree))))== Nothing then False
+    else is_sister (fromJust (father (fromJust (get_family_member member1 family_tree)))) hala family_tree
 
 is_dayi :: String -> String -> [FamilyMember] -> Bool
-is_dayi member1 member2 family_tree = is_brother member1 (fromJust (mother (fromJust (get_family_member member2 family_tree)))) family_tree
+is_dayi (member1) (dayi) family_tree = do
+    if (mother (fromJust (get_family_member member1 family_tree))) == Nothing then False
+    else is_brother  (fromJust (mother (fromJust (get_family_member member1 family_tree)))) (dayi) family_tree
 
 is_teyze :: String -> String -> [FamilyMember] -> Bool
-is_teyze member1 member2 family_tree = is_sister member1 (fromJust (mother (fromJust (get_family_member member2 family_tree)))) family_tree
+is_teyze member1 member2 family_tree = do
+    if (mother (fromJust (get_family_member member1 family_tree))) == Nothing then False
+    else is_sister member2 (fromJust (mother (fromJust (get_family_member member1 family_tree)))) family_tree &&
+        is_sister (fromJust (mother (fromJust (get_family_member member1 family_tree)))) member2 family_tree
 
 is_yegen :: String -> String -> [FamilyMember] -> Bool -- check if yegen is one of the children of member1's siblings
 is_yegen member1 yegen family_tree = do
-    let siblings = remove member1 $ children $ fromJust $ get_family_member (fromJust $ father $ fromJust $ get_family_member member1 family_tree) family_tree
-    -- get every name of the sibling children from children list
-    let children_names = concat (map (\sibling -> children (fromJust (get_family_member sibling family_tree))) siblings)
+    if (father $ fromJust $ get_family_member member1 family_tree) == Nothing
+        then False
+    else do
+        let siblings = remove member1 $ children $ fromJust $ get_family_member (fromJust $ father $ fromJust $ get_family_member member1 family_tree) family_tree
+        let children_names = concat (map (\sibling -> children (fromJust (get_family_member sibling family_tree))) siblings)
 
-    -- check if yegen is one of the children of member1's siblings
-    if (yegen `elem` children_names) then True else False
+        if (yegen `elem` children_names) then True else False
 
 is_cousin :: String -> String -> [FamilyMember] -> Bool
 is_cousin member1 cousin family_tree = do
-    let mem1_father = fromJust $ father $ fromJust $ get_family_member member1 family_tree
-    let mem1_mother = fromJust $ mother $ fromJust $ get_family_member member1 family_tree
-    let mem1_father_siblings = remove member1 $ children $ fromJust $ get_family_member (fromJust $ father $ fromJust $ get_family_member mem1_father family_tree) family_tree
-    let mem1_mother_siblings = remove member1 $ children $ fromJust $ get_family_member (fromJust $ father $ fromJust $ get_family_member mem1_mother family_tree) family_tree
+    if (father $ fromJust $ get_family_member member1 family_tree) == Nothing ||
+        (mother $ fromJust $ get_family_member member1 family_tree) == Nothing ||
+        father (fromJust (get_family_member (fromJust (father $ fromJust $ get_family_member member1 family_tree)) family_tree)) == Nothing ||
+        father (fromJust (get_family_member (fromJust (mother $ fromJust $ get_family_member member1 family_tree)) family_tree)) == Nothing ||
+        (father $ fromJust $ get_family_member cousin family_tree) == Nothing ||
+        (mother $ fromJust $ get_family_member cousin family_tree) == Nothing ||
+        father (fromJust (get_family_member (fromJust (father $ fromJust $ get_family_member cousin family_tree)) family_tree)) == Nothing ||
+        father (fromJust (get_family_member (fromJust (mother $ fromJust $ get_family_member cousin family_tree)) family_tree)) == Nothing 
+        then False
+    else do
+        let father_dede = fromJust (father (fromJust (get_family_member (fromJust (father $ fromJust $ get_family_member member1 family_tree)) family_tree)))
+        let mother_dede = fromJust (father (fromJust (get_family_member (fromJust (mother $ fromJust $ get_family_member member1 family_tree)) family_tree)))
 
-    let father_cousins = concat (map (\sibling -> children (fromJust (get_family_member sibling family_tree))) mem1_father_siblings)
-    let mother_cousins = concat (map (\sibling -> children (fromJust (get_family_member sibling family_tree))) mem1_mother_siblings)
-
-    let cousins = father_cousins ++ mother_cousins
-
-    -- check if cousin is one of the cousins of member1
-    if (cousin `elem` cousins) then True else False
+        let cousin_father_dede = fromJust (father (fromJust (get_family_member (fromJust (father $ fromJust $ get_family_member cousin family_tree)) family_tree)))
+        let cousin_mother_dede = fromJust (father (fromJust (get_family_member (fromJust (mother $ fromJust $ get_family_member cousin family_tree)) family_tree)))
+        
+        if (cousin_father_dede == father_dede || cousin_mother_dede == mother_dede || cousin_father_dede == mother_dede || cousin_mother_dede == father_dede) 
+            then True 
+        else False
 
 
 -- sister spouse only
 is_eniste :: String -> String -> [FamilyMember] -> Bool
 is_eniste member1 eniste family_tree = do
-    let mem1_sisters = filter (\sister -> gender (fromJust (get_family_member sister family_tree)) == "female" ) (children (fromJust (get_family_member (fromJust (mother (fromJust (get_family_member member1 family_tree)))) family_tree)))
-    let sister_spouses= map (\sister -> fromJust (spouse (fromJust (get_family_member sister family_tree)))) mem1_sisters
-
-    -- sister_spouses
-
-    -- check if eniste is one of the sister's spouses
-    if (eniste `elem` sister_spouses) then True else False
+    if (spouse (fromJust (get_family_member eniste family_tree))) == Nothing then False
+    else do
+        let eniste_spouse = fromJust (spouse (fromJust (get_family_member eniste family_tree)))
+        is_sister member1 eniste_spouse family_tree && is_male eniste family_tree
 
 is_yenge :: String -> String -> [FamilyMember] -> Bool
 is_yenge member1 yenge family_tree = do
-    let mem1_brothers = filter (\brother -> gender  (fromJust (get_family_member brother family_tree)) == "male" ) (children (fromJust (get_family_member (fromJust (mother (fromJust (get_family_member member1 family_tree)))) family_tree)))
-    let brother_spouses = map (\brother ->  fromJust (spouse (fromJust (get_family_member brother family_tree)))) mem1_brothers
-
-    if (yenge `elem` brother_spouses) then True else False
-
+    if (spouse (fromJust (get_family_member yenge family_tree))) == Nothing then False
+    else do
+        let yenge_spouse = fromJust (spouse (fromJust (get_family_member yenge family_tree)))
+        is_brother member1 yenge_spouse family_tree && is_brother yenge_spouse member1 family_tree
 is_mother_law :: String -> String -> [FamilyMember] -> Bool
 is_mother_law member1 mother_law family_tree = do -- find the mother in law
-    let mem1_spouse = fromJust $ spouse $ fromJust $ get_family_member member1 family_tree
-    let mem1_spouse_mother = fromJust $ mother $ fromJust $ get_family_member mem1_spouse family_tree
+    if (spouse $ fromJust $ get_family_member member1 family_tree) == Nothing then False
+    else do 
+        let mem1_spouse = fromJust $ spouse $ fromJust $ get_family_member member1 family_tree
+        let mem1_spouse_mother = mother $ fromJust $ get_family_member mem1_spouse family_tree
 
-    -- check if mother_low is one of the mother's spouse's children
-    if mem1_spouse_mother == mother_law then True else False
+        -- check if mother_low is one of the mother's spouse's children
+        if mem1_spouse_mother == (Just mother_law) then True else False
 
 is_father_law :: String -> String -> [FamilyMember] -> Bool
 is_father_law member1 father_law family_tree = do -- find the father in law
-    let mem1_spouse = fromJust $ spouse $ fromJust $ get_family_member member1 family_tree
-    let mem1_spouse_father = fromJust $ father $ fromJust $ get_family_member mem1_spouse family_tree
+    if (spouse $ fromJust $ get_family_member member1 family_tree) == Nothing then False
+    else do 
+        let mem1_spouse = fromJust $ spouse $ fromJust $ get_family_member member1 family_tree
+        let mem1_spouse_father = father $ fromJust $ get_family_member mem1_spouse family_tree
 
-    -- check if father_low is one of the father's spouse's children
-    if mem1_spouse_father == father_law then True else False
+        -- check if father_low is one of the father's spouse's children
+        if mem1_spouse_father == (Just father_law) then True else False
 
-
--- -- -- 
 
 is_son_law :: String -> String -> [FamilyMember] -> Bool
 is_son_law member1 son_law family_tree = do 
-    let children_spouses = map (\child -> (fromJust (spouse (fromJust (get_family_member child family_tree))))) (children (fromJust (get_family_member member1 family_tree)))
-    let male_spouse = filter (\spouse -> (gender (fromJust (get_family_member spouse family_tree))) == "male" ) children_spouses
-
-    if (son_law `elem` male_spouse) then True else False
+    let children_spouses = map (\child -> ((spouse (fromJust (get_family_member child family_tree))))) (children (fromJust (get_family_member member1 family_tree)))
+    let male_spouse = filter (\spouse -> spouse/=Nothing && (gender (fromJust (get_family_member (fromJust spouse) family_tree))) == "male" ) children_spouses
+    
+    if (Just son_law `elem` male_spouse) then True else False
 
 is_daughter_law :: String -> String -> [FamilyMember] -> Bool
 is_daughter_law member1 daughter_law family_tree = do
-    let children_spouses = map (\child -> (fromJust (spouse (fromJust (get_family_member child family_tree))))) (children (fromJust (get_family_member member1 family_tree)))
-    let female_spouse = filter (\spouse -> (gender (fromJust (get_family_member spouse family_tree))) == "female" ) children_spouses
+    let children_spouses = map (\child -> ((spouse (fromJust (get_family_member child family_tree))))) (children (fromJust (get_family_member member1 family_tree)))
+    let female_spouse = filter (\spouse -> spouse/=Nothing && (gender (fromJust (get_family_member (fromJust spouse) family_tree))) == "female" ) children_spouses
 
-    if (daughter_law `elem` female_spouse) then True else False
+    if ((Just daughter_law) `elem` female_spouse) then True else False
 
 -- !TODO bacanak
 
 is_bacanak :: String -> String -> [FamilyMember] -> Bool
 is_bacanak member1 bacanak family_tree = do
-    let mem1_spouse = fromJust (spouse (fromJust (get_family_member member1 family_tree)))
-    let siblings = children (fromJust (get_family_member (fromJust (father (fromJust (get_family_member mem1_spouse family_tree))) ) family_tree))  
-    let sibling_spouses = map (\sibling -> fromJust (spouse (fromJust (get_family_member sibling family_tree)))) siblings
+    if (spouse (fromJust (get_family_member member1 family_tree))) == Nothing || (spouse (fromJust (get_family_member bacanak family_tree))) == Nothing
+        then False
+    else do
+        let mem1_spouse = fromJust (spouse (fromJust (get_family_member member1 family_tree)))
+        let mem2_spouse = fromJust (spouse (fromJust (get_family_member bacanak family_tree)))
 
-    let male_spouses = filter (\spouse -> gender (fromJust (get_family_member spouse family_tree)) == "male") sibling_spouses
-    if (bacanak `elem` male_spouses) then True else False
+        if (is_sister mem1_spouse mem2_spouse family_tree && is_sister mem2_spouse mem1_spouse family_tree) then True else False
 
 -- !TODO elti
 
 is_elti :: String -> String -> [FamilyMember] -> Bool
 is_elti member1 elti family_tree = do
-    let mem1_spouse = fromJust (spouse (fromJust (get_family_member member1 family_tree)))
-    let siblings = children (fromJust (get_family_member (fromJust (father (fromJust (get_family_member mem1_spouse family_tree))) ) family_tree))  
-    let sibling_spouses = map (\sibling -> fromJust (spouse (fromJust (get_family_member sibling family_tree)))) siblings
+    if (spouse (fromJust (get_family_member member1 family_tree))) == Nothing || (spouse (fromJust (get_family_member elti family_tree))) == Nothing
+        then False
+    else do
+        let mem1_spouse = fromJust (spouse (fromJust (get_family_member member1 family_tree)))
+        let mem2_spouse = fromJust (spouse (fromJust (get_family_member elti family_tree)))
 
-    let female_spouses = filter (\spouse -> gender (fromJust (get_family_member spouse family_tree)) == "female") sibling_spouses
-    if (elti `elem` female_spouses) then True else False
+        if (is_brother mem1_spouse mem2_spouse family_tree && is_brother mem2_spouse mem1_spouse family_tree) then True else False
 
 -- !TODO baldız
 is_baldiz :: String -> String -> [FamilyMember] -> Bool
 is_baldiz member1 baldiz family_tree = do
-    let mem1_spouse =  fromJust (spouse (fromJust (get_family_member member1 family_tree)))
-    let siblings = children (fromJust (get_family_member (fromJust (father (fromJust (get_family_member mem1_spouse family_tree))) ) family_tree))  
-    let female_siblings = filter (\sibling -> gender (fromJust (get_family_member sibling family_tree)) == "female") siblings
+    if (spouse (fromJust (get_family_member member1 family_tree))) == Nothing then False
+    else do
+        let mem1_spouse =  fromJust (spouse (fromJust (get_family_member member1 family_tree)))
+        is_sister mem1_spouse baldiz family_tree && is_sister baldiz mem1_spouse family_tree
 
-    if (baldiz `elem` female_siblings) then True else False
+    
 
 -- !TODO kayinbirader
 is_kayinbirader :: String -> String -> [FamilyMember] -> Bool
 is_kayinbirader member1 kayinbirader family_tree = do
-    let mem1_spouse =  fromJust (spouse (fromJust (get_family_member member1 family_tree)))
-    let siblings = children (fromJust (get_family_member (fromJust (father (fromJust (get_family_member mem1_spouse family_tree))) ) family_tree))  
-    let male_siblings = filter (\sibling -> gender (fromJust (get_family_member sibling family_tree)) == "male") siblings
-
-    if (kayinbirader `elem` male_siblings) then True else False
+    if (spouse (fromJust (get_family_member member1 family_tree))) == Nothing then False
+    else do
+        let mem1_spouse =  fromJust (spouse (fromJust (get_family_member member1 family_tree)))
+        is_brother mem1_spouse kayinbirader family_tree && (is_male mem1_spouse family_tree)== False
