@@ -26,19 +26,7 @@ addSpouse s1 s2 ft = do
     ft{treeMembers=fm1{spouse=Just s1}:fm2{spouse=Just s2}:removedMembers}
 
 
-addChild :: String -> String -> String -> FamilyTree -> FamilyTree
-addChild child mother father ft = do
-    let memChild = fromJust (getMember child ft)
-    let memMother = fromJust (getMember mother ft)
-    let memFather = fromJust (getMember father ft)
-    let removedMembers = remove memChild (remove memMother (remove memFather (treeMembers ft)))
-    let newChild = memChild{mother=Just mother, father=Just father}
-    let newMother =memMother{children=child:children memMother}
-    let newFather =memFather{children=child:children memFather}
-    ft{treeMembers=newChild:newMother:newFather:removedMembers}
 
-addMember :: FamilyTree -> FamilyMember -> FamilyTree
-addMember ft fm = ft { treeMembers = fm : treeMembers ft }
 
 -- function that replace the given member from the list of members
 updateMemberList :: FamilyMember -> FamilyTree -> FamilyTree
@@ -66,23 +54,4 @@ updatePerson (FamilyTree name members root) = do
         return (FamilyTree name members root)
 
 
--- getMemberDetails :: FamilyMember -> FamilyTree -> IO 
--- getMemberDetails fm ft = do
---     putStrLn "Details of " ++ firstName fm ++ " " ++ lastName fm
---     putStrLn "age: " ++ show (getAge fm)
---     putStrLn "is alive: " ++ show (isAlive fm)
---     putStrLn "level in Family tree: " ++ show (getLevel fm)
 
-
--- find if a member is a father of another member from the family tree
--- is_father :: FamilyMember -> FamilyMember -> Bool
--- is_father member1 member2 = isJust (father member1) && (fromJust (father member1) == member2)
-
-
-getRelationship :: FamilyMember -> FamilyMember -> FamilyTree -> IO ()
-getRelationship fm1 fm2 ft = do
-    putStrLn "Hello"
-    -- if is_father fm1 fm2 ft
-    --     then putStrLn "Father"
-    -- else do
-    --     putStrLn "Not a father"
