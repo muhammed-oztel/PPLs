@@ -6,9 +6,7 @@ import Data.Maybe
 
 
 
--- return a member of the family tree with the given name
-get_family_member :: String -> [FamilyMember] -> Maybe FamilyMember
-get_family_member name family_tree = find (\member -> name == (fullName member)) family_tree
+
 
 is_father :: String -> String -> [FamilyMember] -> Bool
 is_father fm1 fm2 ft = father (fromJust (get_family_member fm1 ft)) == Just fm2
@@ -19,7 +17,7 @@ is_mother fm1 fm2 ft = mother (fromJust (get_family_member fm1 ft)) == Just fm2
 is_siblings :: String -> String -> [FamilyMember] -> Bool
 is_siblings fm1 fm2 ft = mother (fromJust (get_family_member fm1 ft)) == (mother (fromJust (get_family_member fm2 ft))) && 
         father (fromJust (get_family_member fm1 ft)) == father (fromJust (get_family_member fm2 ft)) && 
-        mother (fromJust (get_family_member fm1 ft)) /= Nothing && father (fromJust (get_family_member fm1 ft)) /= Nothing
+        mother (fromJust (get_family_member fm1 ft)) /= Nothing && father (fromJust (get_family_member fm1 ft)) /= Nothing && fm1 /=fm2
 
 is_male :: String -> [FamilyMember] -> Bool
 is_male fm1 ft = gender (fromJust (get_family_member fm1 ft)) == "male"
@@ -54,8 +52,8 @@ is_big_sister member1 big_sis family_tree = is_sister member1 big_sis family_tre
 is_amca :: String -> String -> [FamilyMember] -> Bool
 is_amca member1 amca family_tree = do 
     if (father (fromJust (get_family_member member1 family_tree))) == Nothing then False
-    else (is_brother (fromJust (father (fromJust (get_family_member member1 family_tree)))) amca family_tree) &&
-        (is_brother amca (fromJust (father (fromJust (get_family_member member1 family_tree)))) family_tree)
+    else (is_brother (fromJust (father (fromJust (get_family_member member1 family_tree)))) amca family_tree)
+        
 
 is_hala :: String -> String -> [FamilyMember] -> Bool
 is_hala member1 hala family_tree = do
@@ -196,3 +194,9 @@ is_kayinbirader member1 kayinbirader family_tree = do
     else do
         let mem1_spouse =  fromJust (spouse (fromJust (get_family_member member1 family_tree)))
         is_brother mem1_spouse kayinbirader family_tree && (is_male mem1_spouse family_tree)== False
+
+
+
+getLevelInTree :: Maybe String -> FamilyTree -> Int
+getLevelInTree Nothing ft = 0
+getLevelInTree name ft = max (getLevelInTree (father (fromJust (get_family_member (fromJust name) (treeMembers ft)))) ft + 1) (getLevelInTree (mother (fromJust (get_family_member (fromJust name) (treeMembers ft)))) ft + 1)

@@ -3,6 +3,7 @@ import Data.Maybe
 import Data.Time.Calendar
 import Data.Time.Clock
 import Data.Time
+import Data.Time.Format
 import Control.Exception
 import Relations
 import FamilyMember 
@@ -202,10 +203,93 @@ ozgurTree = FamilyTree{
 --                 is_son_law, is_daughter_law, is_bacanak, is_elti, is_baldiz, is_kayinbirader]
 
 
+
+addPerson :: FamilyTree -> IO ()
+addPerson ft = do
+    -- ask is this person is placeholder
+    putStrLn "Is this person a placeholder? (y/n)"
+    isPlaceholder <- getLine
+    if isPlaceholder == "y"
+        then do
+            let placeholder = FamilyMember{firstName = "placeholder", lastName = "placeholder",
+                    gender = "",
+                    birthDate = Nothing,
+                    deathDate  = Nothing,
+                    father  = Nothing,
+                    mother = Nothing,
+                    children =[],
+                    tree =Nothing,
+                    spouse =Nothing
+             }
+            displayMenu ft{treeMembers=placeholder:(treeMembers ft)}
+    else do
+        putStrLn "Enter first name:"
+        firstName <- getLine
+        putStrLn "Enter last name:"
+        lastName <- getLine
+        putStrLn "Enter Gender:"
+        inputGender <- getLine
+        putStrLn "Enter Year of birth (YYYY):"
+        inputYear <- getLine
+        putStrLn "Enter Month of birth (MM):"
+        inputMonth <- getLine
+        putStrLn "Enter Month of birth (DD):"
+        inputDay <- getLine
+        let dob = fromGregorian (read inputYear) (read inputMonth) (read inputDay)
+        if dob > (fromGregorian 2022 05 22) then do
+            putStrLn "ERROR: Invalid date"
+            displayMenu ft
+        else do
+            let newMember = FamilyMember{firstName = firstName, lastName = lastName,
+                        gender = inputGender,
+                        birthDate = Just dob,
+                        deathDate  = Nothing,
+                        father  = Nothing,
+                        mother = Nothing,
+                        children =[],
+                        tree =Nothing,
+                        spouse =Nothing
+            }
+            displayMenu ft{treeMembers= newMember : (treeMembers ft)}
+
+addChild :: FamilyTree -> IO ()
+addChild ft = do
+    putStrLn "Enter full name of child:"
+    childName <- getLine
+    putStrLn "Enter full name of mother:"
+    motherName <- getLine
+    putStrLn "Enter full name of father:"
+    fatherName <- getLine
+    let memChild = fromJust (get_family_member childName (treeMembers ft))
+    let memMother = fromJust (get_family_member motherName (treeMembers ft))
+    let memFather = fromJust (get_family_member fatherName (treeMembers ft))
+    let removedMembers = remove memChild (remove memMother (remove memFather (treeMembers ft)))
+    let newChild = memChild{mother=Just motherName, father=Just fatherName}
+    let newMother =memMother{children=childName:children memMother}
+    let newFather =memFather{children=childName:children memFather}
+    displayMenu ft{treeMembers=newChild:newMother:newFather:removedMembers}
+
+addSpouse :: FamilyTree -> IO ()
+addSpouse ft = do
+    putStrLn "Enter full name of first spouse:"
+    firstSpouseName <- getLine
+    putStrLn "Enter full name of second spouse:"
+    secondSpouseName <- getLine
+    let memFirstSpouse = fromJust (get_family_member firstSpouseName (treeMembers ft))
+    let memSecondSpouse = fromJust (get_family_member secondSpouseName (treeMembers ft))
+    if (getAge memFirstSpouse < 18 ) then do 
+        putStrLn $ "WARNING!!! " ++ (firstSpouseName) ++ " is under 18 years old." 
+    else putStr ""
+    if( getAge memSecondSpouse < 18) then do 
+        putStrLn $ "WARNING!!! " ++ (secondSpouseName) ++ " is under 18 years old." 
+    else putStr ""
+
+    let removedMembers = remove memFirstSpouse (remove memSecondSpouse (treeMembers ft))
+    displayMenu ft{treeMembers=memFirstSpouse{spouse=Just secondSpouseName}:memSecondSpouse{spouse=Just firstSpouseName}:removedMembers}
+
+
 findRelation :: String -> String -> [FamilyMember]-> IO ()
 findRelation name1 self ft = do
-    
-
     putStrLn $ "The relation of " ++ name1 ++ " to " ++ self ++ " is "
     if (is_father self name1 ft) then putStrLn "Baba" else putStr ""
     if (is_mother self name1 ft) then putStrLn "Anne" else putStr ""
@@ -240,70 +324,153 @@ askForRelations tree = do
     putStrLn "Enter the name & surname of the person you want to get the relationship with:"
     member2 <- getLine
     findRelation member1 member2 (treeMembers tree)
-    askForRelations tree
+    displayMenu tree
+
+printPerson :: FamilyTree -> IO ()
+printPerson family_tree = do
+    putStrLn "Enter the name & surname of the person you want to get the information of:"
+    member <- getLine
+    putStrLn $ "The information of " ++ member ++ " is "
+    putStrLn $ "Age: " ++ show (getAge (fromJust (get_family_member member (treeMembers family_tree))))
+    putStrLn $ "Is Alive: " ++ show ((deathDate (fromJust (get_family_member member (treeMembers family_tree)))) == Nothing)
+    putStrLn $ "Level In Tree: " ++ show (getLevelInTree (Just member) family_tree)
+
+setDeathDate :: FamilyTree -> IO ()
+setDeathDate family_tree = do
+    putStrLn "Enter the name & surname of the person you want to set the death date of:"
+    memberName <- getLine
+    putStrLn "Enter the death year of the person:"
+    deathYear <- getLine
+    putStrLn "Enter the death month of the person:"
+    deathMonth <- getLine
+    putStrLn "Enter the death day of the person:"
+    deathDay <- getLine
+    let dod = fromGregorian (read deathYear) (read deathMonth) (read deathDay)
+    let member = fromJust (get_family_member memberName (treeMembers family_tree))
+    let newMember = member{deathDate=Just dod}
+    let removedMembers = remove member (treeMembers family_tree)
+    displayMenu family_tree{treeMembers=newMember:removedMembers}
+
+
+updatePerson :: FamilyTree -> IO ()
+updatePerson ft = do
+    putStrLn "What do you want to update?"
+    putStrLn "1. Name"
+    putStrLn "2. Surname"
+    putStrLn "3. Birth date"
+    putStrLn "4. Gender"
+    choice <- getLine
+
+    case choice of 
+        "1" -> updateName ft
+        "2" -> updateSurname ft
+        "3" -> updateBirthDate ft
+        "4" -> updateGender ft
+        _ -> putStrLn "Invalid choice"
+        >> displayMenu ft
+
+displayMenu :: FamilyTree -> IO ()
+displayMenu ft = do
+    putStrLn "------------------- Tree Menu -------------------"
+    putStrLn "1. Add a person"
+    putStrLn "2. Add a spouse"
+    putStrLn "3. Add a child"
+    putStrLn "4. Print a person's details"
+    putStrLn "5. Set a person's death date"
+    putStrLn "6. Get a person's relationship with another person"
+    putStrLn "7. Update a person's details"
+    putStrLn "8. Print the tree"
+    putStrLn "9. Exit"
+    putStrLn "-----------------------------------------------"
+    putStrLn "Enter your choice:"
+    choice <- getLine
+    case choice of
+        "1" -> addPerson ft
+        "2" -> addSpouse ft
+        "3" -> addChild ft
+        "4" -> printPerson ft
+        "5" -> setDeathDate ft
+        "6" -> askForRelations ft
+        "7" -> updatePerson ft
+        -- "8" -> printTree ft
+        "9" -> putStrLn "Exiting..."
+        _ -> putStrLn "Invalid choice"
+        >> displayMenu ft
+
+
+
 
 main::IO()
 main = do
     putStrLn "Welcome to the Family Tree Warehouse!"
-    askForRelations ozgurTree
-
-
-
-    -- result <- try (is_son_law "Selin Ozgur" "Suleiman Ozgur" (treeMembers ozgurTree)) :: IO (Either SomeException Bool)
-    -- case result of 
-    --     Left ex -> print ""
-    --     Right x -> putStrLn $ "The relation is: " ++ (show x)
-
-
-
-    -- putStrLn $ show $ is_father "Ahmet Ozgur" "Ali Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_son_law "Selin Ozgur" "Suleiman Ozgur" (treeMembers ozgurTree)
-
-    -- putStrLn $ show $ is_dayi (Just "Zeynep Isci") (Just "Ali Ozgur") (treeMembers ozgurTree)
     
-
-
-    -- print members in the tree
-    -- putStrLn "The members of the tree are:"
-    -- mapM_ print $ treeMembers ozgurTree
-    -- display the children of member with name Ahmet Ozgur
-    -- putStrLn "The children of member with name Ahmet Ozgur are:"
-    -- putStrLn $ show $ children $ fromJust $ getMember "Ahmet Ozgur" ozgurTree
-    -- putStrLn $ show $ is_kayinbirader "Suleiman Ozgur" "Yunus Isci" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_father "Selin Ozgur" "Ahmet Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_father "Ali Ozgur" "Selin Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_mother "Selin Ozgur" "Ahmet Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_mother "Selin Ozgur" "Hilal Demirtas Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_siblings "Yunus Isci" "Leyla Isci" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_son "Batuhan Ozgur" "Leyla Isci" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_daughter "Selin Ozgur" "Hilal Demirtas Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_younger "Ahmet Ozgur" "Selin Ozgur"(treeMembers ozgurTree)
-    -- putStrLn $ show $ is_sister "Burcu Ozgur" "Suleiman Ozgur" (treeMembers ozgurTree)
-    
-    -- putStrLn $ show $ is_younger "Suleiman Ozgur" "Bilal Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_little_brother "Suleiman Ozgur" "Bilal Ozgur" (treeMembers ozgurTree) 
-    -- putStrLn $ show $ is_big_brother "Bilal Ozgur" "Suleiman Ozgur" (treeMembers ozgurTree) 
-
-    -- putStrLn $ show $ is_sister "Leyla Isci" "Zeynep Isci" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_little_sister "Leyla Isci" "Zeynep Isci" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_big_sister "Zeynep Isci" "Leyla Isci" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_siblings "Omer Ozgur" "Ali Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_amca "Bilal Ozgur" "Omer Ozgur"(treeMembers ozgurTree)
-    
-    -- putStrLn $ show $ is_siblings "Selin Ozgur" "Ali Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_hala "Selin Ozgur" "Suleiman Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_teyze "Zeynep Isci" "Batuhan Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_yegen "Burcu Ozgur" "Omer Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_cousin "Arif Ozgur" "Batuhan Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_eniste "Omer Ozgur" "Mehmet Isci" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_yenge "Selin Ozgur" "Ayse Yalcintas Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_mother_law "Ayse Yalcintas Ozgur" "Hilal Demirtas Ozgur" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_father_law "Zeynep Isci" "Ali Ozgur" (treeMembers ozgurTree)
+    displayMenu ozgurTree
 
 
 
-    -- putStrLn $ show $ is_father_law "Ali Ozgur" "Selin Ozgur" (treeMembers ozgurTree)
 
-    -- TODO
-    -- putStrLn $ show $ is_dayi "Ali Ozgur" "Zeynep Isci" (treeMembers ozgurTree)
-    -- putStrLn $ show $ is_son_law "Selin Ozgur" "Suleiman Ozgur" (treeMembers ozgurTree)
+
+
+updateName :: FamilyTree -> IO ()
+updateName ft = do
+    putStrLn "Enter the person to update:"
+    personName <- getLine
+    putStrLn "Enter the new name:"
+    newName <- getLine
+    let member = get_family_member personName (treeMembers ft)
+    if isNothing member
+        then putStrLn "Member not found"
+    else do
+        let newMember = (fromJust member){firstName=newName}
+        let updatedFather = updateFather ft personName (fullName newMember) (father newMember)
+        let updatedMother = updateMother updatedFather personName (fullName newMember) (mother newMember)
+        let updatedSpouse = updateSpouse updatedMother personName (fullName newMember) (spouse newMember)
+        let updatedNew = updatedSpouse{treeMembers=newMember:(treeMembers updatedSpouse)}
+        putStrLn "Updated tree"
+        displayMenu updatedNew
+
+
+updateSurname :: FamilyTree -> IO ()
+updateSurname ft = do
+    putStrLn "Enter the person to update:"
+    personName <- getLine
+    putStrLn "Enter the new surname:"
+    newSurname <- getLine
+    let member = get_family_member personName (treeMembers ft)
+    if isNothing member
+        then putStrLn "Member not found"
+    else do
+        let newMember = (fromJust member){lastName=newSurname}
+        let updatedFather = updateFather ft personName (fullName newMember) (father newMember)
+        let updatedMother = updateMother updatedFather personName (fullName newMember) (mother newMember)
+        let updatedSpouse = updateSpouse updatedMother personName (fullName newMember) (spouse newMember)
+        let updatedNew = updatedSpouse{treeMembers=newMember:(treeMembers updatedSpouse)}
+        putStrLn "Updated tree"
+        displayMenu updatedNew
+
+updateBirthDate :: FamilyTree -> IO ()
+updateBirthDate ft = do
+    putStrLn "Enter the person to update birth date:"
+    personName <- getLine
+    let member = fromJust (get_family_member personName (treeMembers ft))
+    putStrLn "Enter the birth year:"
+    birthYear <- getLine
+    putStrLn "Enter the birth month:"
+    birthMonth <- getLine
+    putStrLn "Enter the birth day:"
+    birthDay <- getLine
+    let bd = fromGregorian (read birthYear) (read birthMonth) (read birthDay)
+    let newMember = member{birthDate=(Just bd)}
+    let removedMember = remove member (treeMembers ft)
+    displayMenu ft{treeMembers=newMember:removedMember}
+
+updateGender :: FamilyTree -> IO ()
+updateGender ft = do
+    putStrLn "Enter the person to update the gender:"
+    personName <- getLine
+    let member = fromJust (get_family_member personName (treeMembers ft))
+    putStrLn "Enter the new gender:"
+    newGender <- getLine
+    let newMember = member{gender=newGender}
+    let removedMember = remove member (treeMembers ft)
+    displayMenu ft{treeMembers=newMember:removedMember}
