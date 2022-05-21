@@ -6,9 +6,7 @@ import Data.Maybe
 
 
 
--- return a member of the family tree with the given name
-get_family_member :: String -> [FamilyMember] -> Maybe FamilyMember
-get_family_member name family_tree = find (\member -> name == (fullName member)) family_tree
+
 
 is_father :: String -> String -> [FamilyMember] -> Bool
 is_father fm1 fm2 ft = father (fromJust (get_family_member fm1 ft)) == Just fm2

@@ -269,12 +269,27 @@ addChild ft = do
     let newFather =memFather{children=childName:children memFather}
     displayMenu ft{treeMembers=newChild:newMother:newFather:removedMembers}
 
+addSpouse :: FamilyTree -> IO ()
+addSpouse ft = do
+    putStrLn "Enter full name of first spouse:"
+    firstSpouseName <- getLine
+    putStrLn "Enter full name of second spouse:"
+    secondSpouseName <- getLine
+    let memFirstSpouse = fromJust (get_family_member firstSpouseName (treeMembers ft))
+    let memSecondSpouse = fromJust (get_family_member secondSpouseName (treeMembers ft))
+    if (getAge memFirstSpouse < 18 ) then do 
+        putStrLn $ "WARNING!!! " ++ (firstSpouseName) ++ " is under 18 years old." 
+    else putStr ""
+    if( getAge memSecondSpouse < 18) then do 
+        putStrLn $ "WARNING!!! " ++ (secondSpouseName) ++ " is under 18 years old." 
+    else putStr ""
+
+    let removedMembers = remove memFirstSpouse (remove memSecondSpouse (treeMembers ft))
+    displayMenu ft{treeMembers=memFirstSpouse{spouse=Just secondSpouseName}:memSecondSpouse{spouse=Just firstSpouseName}:removedMembers}
 
 
 findRelation :: String -> String -> [FamilyMember]-> IO ()
 findRelation name1 self ft = do
-    
-
     putStrLn $ "The relation of " ++ name1 ++ " to " ++ self ++ " is "
     if (is_father self name1 ft) then putStrLn "Baba" else putStr ""
     if (is_mother self name1 ft) then putStrLn "Anne" else putStr ""
@@ -320,6 +335,40 @@ printPerson family_tree = do
     putStrLn $ "Is Alive: " ++ show ((deathDate (fromJust (get_family_member member (treeMembers family_tree)))) == Nothing)
     putStrLn $ "Level In Tree: " ++ show (getLevelInTree (Just member) family_tree)
 
+setDeathDate :: FamilyTree -> IO ()
+setDeathDate family_tree = do
+    putStrLn "Enter the name & surname of the person you want to set the death date of:"
+    memberName <- getLine
+    putStrLn "Enter the death year of the person:"
+    deathYear <- getLine
+    putStrLn "Enter the death month of the person:"
+    deathMonth <- getLine
+    putStrLn "Enter the death day of the person:"
+    deathDay <- getLine
+    let dod = fromGregorian (read deathYear) (read deathMonth) (read deathDay)
+    let member = fromJust (get_family_member memberName (treeMembers family_tree))
+    let newMember = member{deathDate=Just dod}
+    let removedMembers = remove member (treeMembers family_tree)
+    displayMenu family_tree{treeMembers=newMember:removedMembers}
+
+
+updatePerson :: FamilyTree -> IO ()
+updatePerson ft = do
+    putStrLn "What do you want to update?"
+    putStrLn "1. Name"
+    putStrLn "2. Surname"
+    putStrLn "3. Birth date"
+    putStrLn "4. Gender"
+    choice <- getLine
+
+    case choice of 
+        "1" -> updateName ft
+        "2" -> updateSurname ft
+        "3" -> updateBirthDate ft
+        "4" -> updateGender ft
+        _ -> putStrLn "Invalid choice"
+        >> displayMenu ft
+
 displayMenu :: FamilyTree -> IO ()
 displayMenu ft = do
     putStrLn "------------------- Tree Menu -------------------"
@@ -337,12 +386,12 @@ displayMenu ft = do
     choice <- getLine
     case choice of
         "1" -> addPerson ft
-        -- "2" -> addSpouse ft
+        "2" -> addSpouse ft
         "3" -> addChild ft
         "4" -> printPerson ft
-        -- "5" -> setDeathDate ft
+        "5" -> setDeathDate ft
         "6" -> askForRelations ft
-        -- "7" -> updatePerson ft
+        "7" -> updatePerson ft
         -- "8" -> printTree ft
         "9" -> putStrLn "Exiting..."
         _ -> putStrLn "Invalid choice"
@@ -362,3 +411,66 @@ main = do
 
 
 
+updateName :: FamilyTree -> IO ()
+updateName ft = do
+    putStrLn "Enter the person to update:"
+    personName <- getLine
+    putStrLn "Enter the new name:"
+    newName <- getLine
+    let member = get_family_member personName (treeMembers ft)
+    if isNothing member
+        then putStrLn "Member not found"
+    else do
+        let newMember = (fromJust member){firstName=newName}
+        let updatedFather = updateFather ft personName (fullName newMember) (father newMember)
+        let updatedMother = updateMother updatedFather personName (fullName newMember) (mother newMember)
+        let updatedSpouse = updateSpouse updatedMother personName (fullName newMember) (spouse newMember)
+        let updatedNew = updatedSpouse{treeMembers=newMember:(treeMembers updatedSpouse)}
+        putStrLn "Updated tree"
+        displayMenu updatedNew
+
+
+updateSurname :: FamilyTree -> IO ()
+updateSurname ft = do
+    putStrLn "Enter the person to update:"
+    personName <- getLine
+    putStrLn "Enter the new surname:"
+    newSurname <- getLine
+    let member = get_family_member personName (treeMembers ft)
+    if isNothing member
+        then putStrLn "Member not found"
+    else do
+        let newMember = (fromJust member){lastName=newSurname}
+        let updatedFather = updateFather ft personName (fullName newMember) (father newMember)
+        let updatedMother = updateMother updatedFather personName (fullName newMember) (mother newMember)
+        let updatedSpouse = updateSpouse updatedMother personName (fullName newMember) (spouse newMember)
+        let updatedNew = updatedSpouse{treeMembers=newMember:(treeMembers updatedSpouse)}
+        putStrLn "Updated tree"
+        displayMenu updatedNew
+
+updateBirthDate :: FamilyTree -> IO ()
+updateBirthDate ft = do
+    putStrLn "Enter the person to update birth date:"
+    personName <- getLine
+    let member = fromJust (get_family_member personName (treeMembers ft))
+    putStrLn "Enter the birth year:"
+    birthYear <- getLine
+    putStrLn "Enter the birth month:"
+    birthMonth <- getLine
+    putStrLn "Enter the birth day:"
+    birthDay <- getLine
+    let bd = fromGregorian (read birthYear) (read birthMonth) (read birthDay)
+    let newMember = member{birthDate=(Just bd)}
+    let removedMember = remove member (treeMembers ft)
+    displayMenu ft{treeMembers=newMember:removedMember}
+
+updateGender :: FamilyTree -> IO ()
+updateGender ft = do
+    putStrLn "Enter the person to update the gender:"
+    personName <- getLine
+    let member = fromJust (get_family_member personName (treeMembers ft))
+    putStrLn "Enter the new gender:"
+    newGender <- getLine
+    let newMember = member{gender=newGender}
+    let removedMember = remove member (treeMembers ft)
+    displayMenu ft{treeMembers=newMember:removedMember}

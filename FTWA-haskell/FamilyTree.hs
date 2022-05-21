@@ -10,7 +10,9 @@ data FamilyTree = FamilyTree {
     treeRoot :: Maybe String
 } deriving (Show)
 
-
+-- return a member of the family tree with the given name
+get_family_member :: String -> [FamilyMember] -> Maybe FamilyMember
+get_family_member name family_tree = find (\member -> name == (fullName member)) family_tree
 
 remove element list = filter (\e -> e/=element) list
 
@@ -18,40 +20,31 @@ remove element list = filter (\e -> e/=element) list
 getMember :: String -> FamilyTree -> Maybe FamilyMember
 getMember name tree = find (\x -> fullName x == name) (treeMembers tree)
 
-addSpouse :: String -> String -> FamilyTree -> FamilyTree
-addSpouse s1 s2 ft = do
-    let fm1 = fromJust (getMember s1 ft)
-    let fm2 = fromJust (getMember s2 ft)
-    let removedMembers = remove fm1 (remove fm2 (treeMembers ft))
-    ft{treeMembers=fm1{spouse=Just s1}:fm2{spouse=Just s2}:removedMembers}
+updateFather :: FamilyTree -> String -> String -> Maybe String -> FamilyTree
+updateFather tree ol child Nothing = tree
+updateFather ft old child (Just fatherName) = do
+    let father = fromJust (get_family_member fatherName (treeMembers ft))
+    let removedChildren = remove old (children father)
+    let updatedFather = father {children = removedChildren ++ [child]}
+    let removedTreeMember = remove father (treeMembers ft)
+    ft {treeMembers = removedTreeMember ++ [updatedFather]}
 
+updateMother :: FamilyTree -> String -> String -> Maybe String -> FamilyTree
+updateMother tree old child Nothing = tree
+updateMother ft old child (Just motherName) = do
+    let mother = fromJust (get_family_member motherName (treeMembers ft))
+    let removedChildren = remove old (children mother)
+    let updatedMother = mother {children = removedChildren ++ [child]}
+    let removedTreeMember = remove mother (treeMembers ft)
+    ft {treeMembers = removedTreeMember ++ [updatedMother]}
 
+updateSpouse :: FamilyTree -> String -> String -> Maybe String -> FamilyTree
+updateSpouse tree old child Nothing = tree
+updateSpouse ft old member (Just spouseName) = do
+    let spouse = fromJust (get_family_member spouseName (treeMembers ft))
+    let updatedSpouse = spouse {spouse = (Just member)}
+    let removedTreeMember = remove spouse (treeMembers ft)
+    ft {treeMembers = removedTreeMember ++ [updatedSpouse]}
 
-
--- function that replace the given member from the list of members
-updateMemberList :: FamilyMember -> FamilyTree -> FamilyTree
-updateMemberList fm ft = ft { treeMembers = fm : remove fm (treeMembers ft) }
-
-updatePerson :: FamilyTree -> IO FamilyTree -- ask for which user to update and update their info
-updatePerson (FamilyTree name members root) = do
-    putStrLn "Enter name of person to update:"
-    updateName <- getLine
-    let updatePerson = find (\x -> firstName x ++ " " ++ lastName x == updateName) members
-    if updatePerson == Nothing 
-        then do
-            putStrLn "Person not found"
-            return (FamilyTree name members root) 
-
-    else do
-        putStrLn "1. Add a spouse"
-        putStrLn "2. Add a child"
-        putStrLn "3. Add gender"
-        putStrLn "4. Add birth date"
-        putStrLn "5. Add death date"
-        putStrLn "6. Add father"
-        putStrLn "7. Add mother"
-        putStrLn "8. Return to  tree menu"
-        return (FamilyTree name members root)
-
-
-
+            
+          

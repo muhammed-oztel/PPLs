@@ -31,7 +31,11 @@ isAlive fm = isNothing $ deathDate fm
  
 
 getAge :: FamilyMember -> Integer -- get the difference between the birth date and the current date in years
-getAge fm = (diffDays (fromGregorian 2022 05 22) (fromJust $ birthDate fm)) `div` 365
+getAge fm = do
+    if birthDate fm == Nothing then 0
+    else do
+        if (isAlive fm) then (diffDays (fromGregorian 2022 05 22) (fromJust $ birthDate fm)) `div` 365
+        else (diffDays (fromJust $ deathDate fm) (fromJust $ birthDate fm)) `div` 365
 
 
 --function that get the level of member in family member tree
