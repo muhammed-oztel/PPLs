@@ -42,4 +42,12 @@ updateSpouse ft old member (Just spouseName) = do
     ft {treeMembers = removedTreeMember ++ [updatedSpouse]}
 
             
+updateChildren :: FamilyTree -> String -> String -> [String] -> FamilyTree
+updateChildren tree old new [] = tree
+updateChildren tree old new children = do
+    let oldMember = fromJust (get_family_member old (treeMembers tree))
+    let memberChildren = map(\child -> fromJust (get_family_member child (treeMembers tree))) children
+    let removedChildren = (treeMembers tree) \\ memberChildren
+    let newChildren = map (\child -> if (gender oldMember == "male") then (child {father = Just new}) else child {mother = Just new}) memberChildren 
+    tree{treeMembers = removedChildren ++ newChildren}
           
