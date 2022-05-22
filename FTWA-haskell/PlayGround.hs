@@ -441,7 +441,9 @@ updateName ft = do
         let updatedFather = updateFather ft personName (fullName newMember) (father newMember)
         let updatedMother = updateMother updatedFather personName (fullName newMember) (mother newMember)
         let updatedSpouse = updateSpouse updatedMother personName (fullName newMember) (spouse newMember)
-        let updatedNew = updatedSpouse{treeMembers=newMember:(treeMembers updatedSpouse)}
+        let updatedChildren = updateChildren updatedSpouse personName (fullName newMember) (children newMember)
+        let updatedTreeMembers = remove (fromJust (get_family_member personName (treeMembers updatedChildren))) (treeMembers updatedChildren)
+        let updatedNew = updatedChildren{treeMembers=newMember:updatedTreeMembers}
         putStrLn "Updated tree"
         displayMenu updatedNew
 
@@ -460,7 +462,9 @@ updateSurname ft = do
         let updatedFather = updateFather ft personName (fullName newMember) (father newMember)
         let updatedMother = updateMother updatedFather personName (fullName newMember) (mother newMember)
         let updatedSpouse = updateSpouse updatedMother personName (fullName newMember) (spouse newMember)
-        let updatedNew = updatedSpouse{treeMembers=newMember:(treeMembers updatedSpouse)}
+        let updatedChildren = updateChildren updatedSpouse personName (fullName newMember) (children newMember)
+        let updatedTreeMembers = remove (fromJust (get_family_member personName (treeMembers updatedChildren))) (treeMembers updatedChildren)
+        let updatedNew = updatedChildren{treeMembers=newMember:updatedTreeMembers}
         putStrLn "Updated tree"
         displayMenu updatedNew
 
